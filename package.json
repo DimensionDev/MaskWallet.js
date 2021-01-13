@@ -1,0 +1,16 @@
+{
+  "name": "@dimesiondev/mask-wallet",
+  "version": "0.0.0",
+  "description": "Standalone Multi-chain wallet",
+  "repository": "https://github.com/DimensionDev/MaskWallet",
+  "license": "MIT",
+  "author": "DimensionDev",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.13.0",
+    "@typescript-eslint/parser": "^4.13.0",
+    "eslint": "^7.17.0",
+    "eslint-config-prettier": "^7.1.0",
+    "prettier": "^2.2.1",
+    "typescript": "^4.1.3"
+  }
+}
