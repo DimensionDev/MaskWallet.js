@@ -18,9 +18,10 @@ export enum NetworkType {
 }
 
 export enum CurveType {
-  SECP256K1 = 'SECP256K1',
+  SECP256k1 = 'SECP256k1',
   ED25519 = 'ED25519',
   Curve25519 = 'Curve25519',
+  SubSr25519 = 'SubSr25519',
 }
 
 export enum KeyType {
@@ -33,8 +34,48 @@ export enum UnlockedKeyType {
   DeriverdKey = 'DeriverdKey',
 }
 
+export interface StorageRegistry {
+  getKeyStore(hash: KeyStore.Snapshot['hash']): Promise<KeyStore.Snapshot | undefined>;
+  setKeyStore(snapshot: Readonly<KeyStore.Snapshot>): Promise<void>;
+  deleteKeyStore(hash: KeyStore.Snapshot['hash']): Promise<KeyStore.Snapshot>;
+}
+
 export enum KeyStoreSource {
   Mnemonic = 'Mnemonic',
   PrivateKey = 'PrivateKey',
   ExcryptedJSON = 'ExcryptedJSON',
+}
+
+export namespace KeyStore {
+  interface PayloadMapping {
+    keystore: KeyStore;
+  }
+
+  export interface Snapshot<T extends keyof PayloadMapping = keyof PayloadMapping> {
+    hash: string;
+
+    format: T;
+    version: number;
+    payload: PayloadMapping[T];
+
+    meta: Metadata;
+  }
+
+  export interface Metadata {
+    name: string;
+    source: KeyStoreSource;
+    timestamp: Date;
+    remark?: string;
+
+    passwordHint: string;
+  }
+
+  export interface KeyStore {
+    cipher: string;
+    cipherparams: unknown;
+    ciphertext: string;
+    kdf: string;
+    kdfparams: unknown;
+    mac: string;
+  }
 }

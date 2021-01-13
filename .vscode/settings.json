@@ -2,5 +2,11 @@
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
     "source.fixAll": true
-  }
+  },
+  "json.schemas": [
+    {
+      "fileMatch": ["/src/coin-info.json"],
+      "url": "/.vscode/schema/coin-registry.json"
+    }
+  ]
 }

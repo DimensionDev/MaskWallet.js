@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "type": "array",
+  "items": {
+    "$ref": "#/definitions/coin-info"
+  },
+  "definitions": {
+    "coin-info": {
+      "type": "object",
+      "properties": {
+        "coin": {
+          "type": "string"
+        },
+        "derivationPath": {
+          "type": "string"
+        },
+        "curve": {
+          "enum": ["SECP256k1", "ED25519", "Curve25519", "SubSr25519"]
+        },
+        "network": {
+          "enum": ["MainNet", "TestNet"]
+        },
+        "segWit": {
+          "type": "string"
+        }
+      },
+      "required": ["coin", "derivationPath", "curve"],
+      "additionalProperties": false
+    }
+  }
+}

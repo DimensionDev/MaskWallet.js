@@ -1,10 +1,10 @@
-import { CoinInfo, KeyStoreSource, UnlockedKeyType } from './types';
+import { CoinInfo, KeyStore, UnlockedKeyType } from './types';
 
 export class TypedKeyStore {
-  #input: Snapshot;
+  #input: KeyStore.Snapshot;
   #store: UnlockedStore | null = null;
 
-  constructor(input: Readonly<Snapshot>) {
+  constructor(input: Readonly<KeyStore.Snapshot>) {
     this.#input = input;
   }
 
@@ -54,7 +54,7 @@ export class TypedKeyStore {
     throw new Error('not implemented');
   }
 
-  toJSON(): Readonly<Snapshot> {
+  toJSON(): Readonly<KeyStore.Snapshot> {
     return this.#input; // copy the object and freeze it
   }
 }
@@ -62,32 +62,4 @@ export class TypedKeyStore {
 interface UnlockedStore {
   type: UnlockedKeyType;
   value: string;
-}
-
-export interface Snapshot {
-  version: number;
-  hash: string;
-
-  format: 'keystore';
-  payload: KeyStore;
-
-  meta: Metadata;
-}
-
-export interface KeyStore {
-  cipher: string;
-  cipherparams?: unknown;
-  ciphertext: string;
-  kdf: string;
-  kdfparams: unknown;
-  mac: string;
-}
-
-export interface Metadata {
-  name: string;
-  source: KeyStoreSource;
-  timestamp: Date;
-  remark?: string;
-
-  passwordHint: string;
 }

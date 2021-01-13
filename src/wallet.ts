@@ -1,11 +1,4 @@
-import { Metadata, Snapshot } from './key-store';
-import { ChainType, CoinInfo, KeyStoreSource, KeyType, NetworkType, UnlockedKeyType } from './types';
-
-export interface StorageRegistry {
-  getKeyStore(hash: Snapshot['hash']): Promise<Snapshot | undefined>;
-  setKeyStore(snapshot: Readonly<Snapshot>): Promise<void>;
-  deleteKeyStore(hash: Snapshot['hash']): Promise<Snapshot>;
-}
+import { ChainType, CoinInfo, KeyStore, KeyStoreSource, KeyType, NetworkType, StorageRegistry, UnlockedKeyType } from './types';
 
 export class Wallet {
   public constructor(storage: StorageRegistry) {
@@ -25,21 +18,21 @@ export class Wallet {
     throw new Error('not implemented');
   }
 
-  public getKeyStoreType(hash: Snapshot['hash']): Promise<KeyStoreSource[]> {
+  public getKeyStoreType(hash: KeyStore.Snapshot['hash']): Promise<KeyStoreSource[]> {
     throw new Error('not implemented');
   }
 
-  public getAllKeyStoreMetadata(): Promise<Record<Snapshot['hash'], Metadata>> {
+  public getAllKeyStoreMetadata(): Promise<Record<KeyStore.Snapshot['hash'], KeyStore.Metadata>> {
     throw new Error('not implemented');
   }
   // #endregion
 
   // #region cryptographic operations
-  public deriveKey(hash: Snapshot['hash'], info: CoinInfo): Promise<boolean> {
+  public deriveKey(hash: KeyStore.Snapshot['hash'], info: CoinInfo): Promise<boolean> {
     throw new Error('not implemented');
   }
 
-  public verify(hash: Snapshot['hash'], password: string): Promise<boolean> {
+  public verify(hash: KeyStore.Snapshot['hash'], password: string): Promise<boolean> {
     throw new Error('not implemented');
   }
 
@@ -49,7 +42,7 @@ export class Wallet {
     throw new Error('not implemented');
   }
 
-  public delete(hash: Snapshot['hash'], password: string): Promise<void> {
+  public delete(hash: KeyStore.Snapshot['hash'], password: string): Promise<void> {
     throw new Error('not implemented');
   }
 
@@ -99,7 +92,7 @@ export namespace ExportKeyStoreParams {
   export type Type = Mnemonic | PrivateKey;
 
   interface Generanl {
-    hash: Snapshot['hash'];
+    hash: KeyStore.Snapshot['hash'];
     password: string;
   }
 
@@ -117,7 +110,7 @@ export namespace ExportKeyStoreParams {
 
 export namespace SignParams {
   export interface SignParams {
-    hash: Snapshot['hash'];
+    hash: KeyStore.Snapshot['hash'];
     chainType: ChainType;
     address: string;
     unlockKeyType: UnlockedKeyType;
