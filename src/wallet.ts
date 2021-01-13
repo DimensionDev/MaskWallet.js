@@ -120,7 +120,7 @@ export namespace SignParams {
     hash: Snapshot['hash'];
     chainType: ChainType;
     address: string;
-    unlockKeyType: UnlockKeyType;
+    unlockKeyType: UnlockedKeyType;
     input: unknown;
   }
 }

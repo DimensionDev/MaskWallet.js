@@ -1,13 +1,17 @@
-import { Snapshot } from './key-store';
+import { StorageRegistry, Wallet } from './wallet';
 
-let storage: StorageRegistry | undefined;
-
-export interface StorageRegistry {
-  getKeyStore(hash: Snapshot['hash']): Promise<Snapshot | undefined>;
-  setKeyStore(snapshot: Readonly<Snapshot>): Promise<void>;
-  deleteKeyStore(hash: Snapshot['hash']): Promise<Snapshot>;
-}
+let wallet: Wallet | undefined;
 
 export function setStorageRegistry(registry: StorageRegistry): void {
-  storage = registry;
+  if (wallet !== undefined) {
+    throw new TypeError('Not allowed');
+  }
+  wallet = new Wallet(registry);
+}
+
+export function getWalletInstance() {
+  if (wallet === undefined) {
+    throw new TypeError('Please provide `StorageRegistry`.');
+  }
+  return wallet;
 }
