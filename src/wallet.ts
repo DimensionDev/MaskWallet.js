@@ -10,11 +10,11 @@ export class Wallet {
     throw new Error('not implemented');
   }
 
-  public importKeyStore(params: ImportKeyStoreParams.Type) {
+  public importKeyStore(params: ImportKeyStoreParams) {
     throw new Error('not implemented');
   }
 
-  public exportKeyStore(params: ExportKeyStoreParams.Type) {
+  public exportKeyStore(params: ExportKeyStoreParams) {
     throw new Error('not implemented');
   }
 
@@ -28,7 +28,7 @@ export class Wallet {
   // #endregion
 
   // #region cryptographic operations
-  public deriveKey(hash: KeyStore.Snapshot['hash'], info: CoinInfo): Promise<boolean> {
+  public deriveKey(hash: KeyStore.Snapshot['hash'], info: Readonly<CoinInfo>): Promise<boolean> {
     throw new Error('not implemented');
   }
 
@@ -46,7 +46,7 @@ export class Wallet {
     throw new Error('not implemented');
   }
 
-  public signTransaction(params: SignParams.SignParams) {
+  public signTransaction(params: SignParams) {
     throw new Error('not implemented');
   }
   // #endregion
@@ -61,6 +61,8 @@ export interface CreateKeyStoreParams {
   password: string;
   passwordHint?: string;
 }
+
+export type ImportKeyStoreParams = ImportKeyStoreParams.Type;
 
 export namespace ImportKeyStoreParams {
   export type Type = HDKeyStore | JSONKeyStore | PrivateKey;
@@ -78,8 +80,8 @@ export namespace ImportKeyStoreParams {
   }
 
   export interface JSONKeyStore extends Generanl {
-    type: KeyStoreSource.ExcryptedJSON;
-    payload: unknown;
+    type: KeyStoreSource.EcryptedJSON;
+    payload: KeyStore.EcryptedJSON;
   }
 
   export interface PrivateKey extends Generanl {
@@ -87,6 +89,8 @@ export namespace ImportKeyStoreParams {
     privateKey: string;
   }
 }
+
+export type ExportKeyStoreParams = ExportKeyStoreParams.Type;
 
 export namespace ExportKeyStoreParams {
   export type Type = Mnemonic | PrivateKey;
@@ -108,8 +112,10 @@ export namespace ExportKeyStoreParams {
   }
 }
 
+export type SignParams = SignParams.Type;
+
 export namespace SignParams {
-  export interface SignParams {
+  export interface Type {
     hash: KeyStore.Snapshot['hash'];
     chainType: ChainType;
     address: string;

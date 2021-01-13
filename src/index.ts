@@ -1,4 +1,4 @@
-import { CoinInfo, StorageRegistry } from './types';
+import { CoinInfo, KeyStoreSource, StorageRegistry } from './types';
 import { Wallet } from './wallet';
 import CoinRegistry from './coin-info.json';
 

@@ -43,12 +43,12 @@ export interface StorageRegistry {
 export enum KeyStoreSource {
   Mnemonic = 'Mnemonic',
   PrivateKey = 'PrivateKey',
-  ExcryptedJSON = 'ExcryptedJSON',
+  EcryptedJSON = 'EcryptedJSON',
 }
 
 export namespace KeyStore {
   interface PayloadMapping {
-    keystore: KeyStore;
+    keystore: EcryptedJSON;
   }
 
   export interface Snapshot<T extends keyof PayloadMapping = keyof PayloadMapping> {
@@ -70,7 +70,7 @@ export namespace KeyStore {
     passwordHint: string;
   }
 
-  export interface KeyStore {
+  export interface EcryptedJSON {
     cipher: string;
     cipherparams: unknown;
     ciphertext: string;
