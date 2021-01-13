@@ -5,7 +5,7 @@ import CoinRegistry from './coin-info.json';
 let wallet: Wallet | undefined;
 
 export function queryCoinInfo(predicate: (info: CoinInfo) => boolean) {
-  return CoinRegistry.filter(predicate).map<Readonly<CoinInfo>>(Object.freeze);
+  return CoinRegistry.map<Readonly<CoinInfo>>(Object.freeze).filter(predicate);
 }
 
 export function setStorageRegistry(registry: StorageRegistry): void {
