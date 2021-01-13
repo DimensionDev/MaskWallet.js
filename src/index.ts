@@ -1,4 +1,5 @@
-import { StorageRegistry, Wallet } from './wallet';
+import { StorageRegistry } from './types';
+import { Wallet } from './wallet';
 
 let wallet: Wallet | undefined;
 
