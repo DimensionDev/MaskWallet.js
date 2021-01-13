@@ -1,125 +1,91 @@
-import { ChainType, CoinInfo, KeyStore, KeyStoreSource, KeyType, NetworkType, StorageRegistry, UnlockedKeyType } from './types';
+import { TypedKeyStore } from './key-store';
+import {
+  CoinInfo,
+  CreateKeyStoreParams,
+  ExportKeyStoreParams,
+  ImportKeyStoreParams,
+  KeyStore,
+  KeyStoreSource,
+  KeyType,
+  SignParams,
+  StorageRegistry,
+} from './types';
 
 export class Wallet {
+  #storage: StorageRegistry;
+
   public constructor(storage: StorageRegistry) {
-    throw new Error('not implemented');
+    this.#storage = storage;
   }
 
   // #region key store
-  public createKeyStore(params: CreateKeyStoreParams) {
+  public async createKeyStore(params: CreateKeyStoreParams) {
     throw new Error('not implemented');
   }
 
-  public importKeyStore(params: ImportKeyStoreParams) {
+  public async importKeyStore(params: ImportKeyStoreParams) {
+    const snapshot = await TypedKeyStore.create(params);
+    const exists = await this.#storage.hasKeyStore(snapshot.keyHash);
+    if (exists && !params.overwrite) {
+      throw new Error('This key hash already exists.');
+    }
+    await this.#storage.setKeyStore(snapshot.toJSON());
+  }
+
+  public async exportKeyStore(params: ExportKeyStoreParams) {
+    const snapshot = await this.#storage.getKeyStore(params.hash);
+    if (snapshot === undefined) {
+      throw new Error('This key hash not found.');
+    }
+    const store = new TypedKeyStore(snapshot);
+    if (params.type === KeyStoreSource.Mnemonic) {
+      return store.exportMnemonic(params.mnemonic);
+    }
+    throw new TypeError(`${params.type} not supported`);
+  }
+
+  public async getKeyStoreType(hash: KeyStore.Snapshot['hash']): Promise<KeyStoreSource[]> {
     throw new Error('not implemented');
   }
 
-  public exportKeyStore(params: ExportKeyStoreParams) {
-    throw new Error('not implemented');
-  }
-
-  public getKeyStoreType(hash: KeyStore.Snapshot['hash']): Promise<KeyStoreSource[]> {
-    throw new Error('not implemented');
-  }
-
-  public getAllKeyStoreMetadata(): Promise<Record<KeyStore.Snapshot['hash'], KeyStore.Metadata>> {
-    throw new Error('not implemented');
+  public async getAllKeyStoreMetadata(): Promise<Record<KeyStore.Snapshot['hash'], KeyStore.Metadata>> {
+    const hashes = await this.#storage.hashes();
+    const stores = await Promise.all(hashes.map(this.#storage.getKeyStore));
+    const records: Record<KeyStore.Snapshot['hash'], KeyStore.Metadata> = {};
+    for (const store of stores) {
+      if (store) {
+        records[store.hash] = store.metadata;
+      }
+    }
+    return records;
   }
   // #endregion
 
   // #region cryptographic operations
-  public deriveKey(hash: KeyStore.Snapshot['hash'], info: Readonly<CoinInfo>): Promise<boolean> {
+  public async deriveKey(hash: KeyStore.Snapshot['hash'], info: Readonly<CoinInfo>): Promise<boolean> {
     throw new Error('not implemented');
   }
 
-  public verify(hash: KeyStore.Snapshot['hash'], password: string): Promise<boolean> {
+  public async verify(hash: KeyStore.Snapshot['hash'], password: string): Promise<boolean> {
     throw new Error('not implemented');
   }
 
-  public exists(type: KeyType.Mnemonic, mnemonic: string): Promise<boolean>;
-  public exists(type: KeyType.PrivateKey, key: string): Promise<boolean>;
-  public exists(type: KeyType, value: string): Promise<boolean> {
+  public async exists(type: KeyType.Mnemonic, mnemonic: string): Promise<boolean>;
+  public async exists(type: KeyType.PrivateKey, key: string): Promise<boolean>;
+  public async exists(type: KeyType, value: string): Promise<boolean> {
     throw new Error('not implemented');
   }
 
-  public delete(hash: KeyStore.Snapshot['hash'], password: string): Promise<void> {
+  public async delete(hash: KeyStore.Snapshot['hash'], password: string): Promise<void> {
     throw new Error('not implemented');
   }
 
-  public signTransaction(params: SignParams) {
+  public async signTransaction(params: SignParams) {
     throw new Error('not implemented');
   }
   // #endregion
 
   public [Symbol.toStringTag]() {
     return 'Wallet';
-  }
-}
-
-export interface CreateKeyStoreParams {
-  name?: string;
-  password: string;
-  passwordHint?: string;
-}
-
-export type ImportKeyStoreParams = ImportKeyStoreParams.Type;
-
-export namespace ImportKeyStoreParams {
-  export type Type = HDKeyStore | JSONKeyStore | PrivateKey;
-
-  interface Generanl {
-    name: string;
-    overwrite: boolean;
-    password: string;
-    passwordHint?: string;
-  }
-
-  export interface HDKeyStore extends Generanl {
-    type: KeyStoreSource.Mnemonic;
-    mnemonic: string;
-  }
-
-  export interface JSONKeyStore extends Generanl {
-    type: KeyStoreSource.EcryptedJSON;
-    payload: KeyStore.EcryptedJSON;
-  }
-
-  export interface PrivateKey extends Generanl {
-    type: KeyStoreSource.PrivateKey;
-    privateKey: string;
-  }
-}
-
-export type ExportKeyStoreParams = ExportKeyStoreParams.Type;
-
-export namespace ExportKeyStoreParams {
-  export type Type = Mnemonic | PrivateKey;
-
-  interface Generanl {
-    hash: KeyStore.Snapshot['hash'];
-    password: string;
-  }
-
-  export interface Mnemonic extends Generanl {
-    type: KeyStoreSource.Mnemonic;
-    mnemonic: string;
-  }
-
-  export interface PrivateKey extends Generanl {
-    type: KeyStoreSource.PrivateKey;
-    chainType: ChainType;
-    network: NetworkType;
-  }
-}
-
-export type SignParams = SignParams.Type;
-
-export namespace SignParams {
-  export interface Type {
-    hash: KeyStore.Snapshot['hash'];
-    chainType: ChainType;
-    address: string;
-    unlockKeyType: UnlockedKeyType;
-    input: unknown;
   }
 }

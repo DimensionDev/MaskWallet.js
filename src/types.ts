@@ -35,6 +35,8 @@ export enum UnlockedKeyType {
 }
 
 export interface StorageRegistry {
+  hashes(): Promise<Array<KeyStore.Snapshot['hash']>>;
+  hasKeyStore(hash: KeyStore.Snapshot['hash']): Promise<boolean>;
   getKeyStore(hash: KeyStore.Snapshot['hash']): Promise<KeyStore.Snapshot | undefined>;
   setKeyStore(snapshot: Readonly<KeyStore.Snapshot>): Promise<void>;
   deleteKeyStore(hash: KeyStore.Snapshot['hash']): Promise<KeyStore.Snapshot>;
@@ -58,7 +60,7 @@ export namespace KeyStore {
     version: number;
     payload: PayloadMapping[T];
 
-    meta: Metadata;
+    metadata: Metadata;
   }
 
   export interface Metadata {
@@ -77,5 +79,73 @@ export namespace KeyStore {
     kdf: string;
     kdfparams: unknown;
     mac: string;
+  }
+}
+
+export interface CreateKeyStoreParams {
+  name?: string;
+  password: string;
+  passwordHint?: string;
+}
+
+export type ImportKeyStoreParams = ImportKeyStoreParams.Type;
+
+export namespace ImportKeyStoreParams {
+  export type Type = HDKeyStore | JSONKeyStore | PrivateKey;
+
+  interface Generanl {
+    name: string;
+    overwrite: boolean;
+    password: string;
+    passwordHint?: string;
+  }
+
+  export interface HDKeyStore extends Generanl {
+    type: KeyStoreSource.Mnemonic;
+    mnemonic: string;
+  }
+
+  export interface JSONKeyStore extends Generanl {
+    type: KeyStoreSource.EcryptedJSON;
+    payload: KeyStore.EcryptedJSON;
+  }
+
+  export interface PrivateKey extends Generanl {
+    type: KeyStoreSource.PrivateKey;
+    privateKey: string;
+  }
+}
+
+export type ExportKeyStoreParams = ExportKeyStoreParams.Type;
+
+export namespace ExportKeyStoreParams {
+  export type Type = Mnemonic | PrivateKey;
+
+  interface Generanl {
+    hash: KeyStore.Snapshot['hash'];
+    password: string;
+  }
+
+  export interface Mnemonic extends Generanl {
+    type: KeyStoreSource.Mnemonic;
+    mnemonic: string;
+  }
+
+  export interface PrivateKey extends Generanl {
+    type: KeyStoreSource.PrivateKey;
+    chainType: ChainType;
+    network: NetworkType;
+  }
+}
+
+export type SignParams = SignParams.Type;
+
+export namespace SignParams {
+  export interface Type {
+    hash: KeyStore.Snapshot['hash'];
+    chainType: ChainType;
+    address: string;
+    unlockKeyType: UnlockedKeyType;
+    input: unknown;
   }
 }

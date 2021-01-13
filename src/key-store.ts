@@ -1,8 +1,12 @@
-import { CoinInfo, KeyStore, UnlockedKeyType } from './types';
+import { CoinInfo, ImportKeyStoreParams, KeyStore, UnlockedKeyType } from './types';
 
 export class TypedKeyStore {
   #input: KeyStore.Snapshot;
   #store: UnlockedStore | null = null;
+
+  static create(params: ImportKeyStoreParams): Promise<TypedKeyStore> {
+    throw new Error('not implemented');
+  }
 
   constructor(input: Readonly<KeyStore.Snapshot>) {
     this.#input = input;
@@ -26,7 +30,7 @@ export class TypedKeyStore {
   }
   // #endregion
 
-  export(): Promise<string> {
+  exportMnemonic(mnemonic: string): Promise<string> {
     throw new Error('not implemented');
   }
 
@@ -52,6 +56,10 @@ export class TypedKeyStore {
 
   signRecoverableHash(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
     throw new Error('not implemented');
+  }
+
+  get keyHash() {
+    return this.#input.hash;
   }
 
   toJSON(): Readonly<KeyStore.Snapshot> {
