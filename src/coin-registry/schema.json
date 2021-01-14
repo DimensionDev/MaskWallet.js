@@ -2,23 +2,47 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "type": "array",
   "items": {
-    "$ref": "#/definitions/coin-info"
+    "anyOf": [{ "$ref": "#/definitions/curve" }, { "$ref": "#/definitions/rsa" }]
   },
   "definitions": {
-    "coin-info": {
+    "curve": {
       "type": "object",
       "properties": {
         "coin": { "type": "string", "minLength": 1 },
+        "type": { "const": "curve" },
         "derivationPath": { "type": "string", "minLength": 1 },
         "curve": { "$ref": "#/definitions/curve-type" },
         "network": { "type": "string" },
         "segWit": { "type": "string" }
       },
-      "required": ["coin", "derivationPath", "curve"],
+      "required": ["type", "coin", "derivationPath", "curve", "network"],
       "additionalProperties": false
+    },
+    "rsa": {
+      "type": "object",
+      "properties": {
+        "coin": { "type": "string", "minLength": 1 },
+        "type": { "const": "rsa" },
+        "suite": {
+          "type": "array",
+          "items": [{ "$ref": "#/definitions/key-type" }, { "$ref": "#/definitions/algorithm-encryption" }, { "$ref": "#/definitions/algorithm-hash" }]
+        },
+        "network": { "type": "string" }
+      },
+      "required": ["type", "coin", "suite", "network"],
+      "additionalProperties": false
+    },
+    "curve-type": {
+      "enum": ["SECP256k1", "ED25519", "ED25519Blake2bNano", "SubSr25519", "Curve25519", "NIST256p1"]
+    },
+    "key-type": {
+      "enum": ["RSA-4096"]
+    },
+    "algorithm-encryption": {
+      "enum": ["AES-256-CBC"]
+    },
+    "algorithm-hash": {
+      "enum": ["SHA-256", "SHA-384"]
     }
-  },
-  "curve-type": {
-    "enum": ["SECP256k1", "ED25519", "ED25519Blake2bNano", "SubSr25519", "Curve25519", "NIST256p1"]
   }
 }
