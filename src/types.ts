@@ -2,19 +2,19 @@ export interface CoinInfo {
   coin: string;
   derivationPath: string;
   curve: CurveType;
-  network?: NetworkType;
+  network?: string;
   segWit?: string;
+}
+
+export enum SystemKind {
+  HDKeyStore = 'HDKeyStore',
+  Arweave = 'Arweave',
 }
 
 export enum ChainType {
   Ethereum = 'Ethereum',
   BitcoinCash = 'BitcoinCash',
   Substrate = 'Substrate',
-}
-
-export enum NetworkType {
-  MainNet = 'MainNet',
-  TestNet = 'TestNet',
 }
 
 export enum CurveType {
@@ -35,11 +35,40 @@ export enum CurveType {
 export enum KeyType {
   Mnemonic = 'Mnemonic',
   PrivateKey = 'PrivateKey',
+  PublicKey = 'PublicKey',
+}
+
+export interface TypedKeyStore {
+  // locker
+  isLocked(): boolean;
+  lock(): void;
+  unlock(type: UnlockKeyType.Password, password: string): Promise<boolean>;
+  unlock(type: UnlockKeyType.DeriverdKey, key: string): Promise<boolean>;
+  // finder
+  find(type: KeyType.PublicKey, symbol: string, address: string, path?: string): Promise<unknown>;
+  find(type: KeyType.PrivateKey, symbol: string, address: string, path?: string): Promise<unknown>;
+  // exporter
+  exportMnemonic(): Promise<string>;
+  exportPrivateKey(coin: string, mainAddress: string, path?: string): Promise<string>;
+  // derive
+  deriveKey(info: CoinInfo): Promise<KeyPair>;
+  // storage
+  toJSON(): Readonly<KeyStore.Snapshot>;
 }
 
 export enum UnlockKeyType {
   Password = 'Password',
   DeriverdKey = 'DeriverdKey',
+}
+
+export interface KeyPair {
+  coin: string;
+  address: string;
+  derivationPath: string;
+  curve: CurveType;
+  network: string;
+  segWit?: string;
+  // extraPublicKey: string;
 }
 
 export interface StorageRegistry {
@@ -59,13 +88,15 @@ export enum KeyStoreSource {
 export namespace KeyStore {
   interface PayloadMapping {
     keystore: EncryptedJSON;
+    arweave: never; // TODO: future
   }
 
   export interface Snapshot<T extends keyof PayloadMapping = keyof PayloadMapping> {
+    version: 1;
+
     hash: string;
 
     format: T;
-    version: number;
     payload: PayloadMapping[T];
 
     metadata: Metadata;
@@ -104,6 +135,7 @@ export namespace CreateKeyStoreParams {
 }
 
 export interface CreateKeyStoreResult {
+  kind: SystemKind.HDKeyStore;
   name: string;
   source: KeyStoreSource;
   pairs: unknown[];
@@ -113,21 +145,22 @@ export interface CreateKeyStoreResult {
 export type ImportKeyStoreParams = ImportKeyStoreParams.Type;
 
 export namespace ImportKeyStoreParams {
-  export type Type = HDKeyStore | JSONKeyStore | PrivateKey;
+  export type Type = Mnemonic | JSON | PrivateKey;
 
   interface Generanl {
+    kind: SystemKind.HDKeyStore;
     name: string;
     overwrite: boolean;
     password: string;
     passwordHint?: string;
   }
 
-  export interface HDKeyStore extends Generanl {
+  export interface Mnemonic extends Generanl {
     type: KeyStoreSource.Mnemonic;
     mnemonic: string;
   }
 
-  export interface JSONKeyStore extends Generanl {
+  export interface JSON extends Generanl {
     type: KeyStoreSource.EncryptedJSON;
     payload: KeyStore.EncryptedJSON;
   }
@@ -144,6 +177,7 @@ export namespace ExportKeyStoreParams {
   export type Type = Mnemonic | PrivateKey;
 
   interface Generanl {
+    kind: SystemKind.HDKeyStore;
     hash: KeyStore.Snapshot['hash'];
     password: string;
   }
@@ -156,7 +190,7 @@ export namespace ExportKeyStoreParams {
   export interface PrivateKey extends Generanl {
     type: KeyStoreSource.PrivateKey;
     chainType: ChainType;
-    network: NetworkType;
+    network: string;
   }
 }
 

@@ -1,15 +1,17 @@
+import { assertFrozen } from './asserts';
 import { WalletError } from './errors';
-import { CoinInfo, ImportKeyStoreParams, KeyStore, UnlockKeyType } from './types';
+import { CoinInfo, ImportKeyStoreParams, KeyPair, KeyStore, KeyType, TypedKeyStore, UnlockKeyType } from './types';
 
-export class TypedKeyStore {
-  #snapshot: KeyStore.Snapshot;
+export class HDKeyStore implements TypedKeyStore {
+  #snapshot: Readonly<KeyStore.Snapshot>;
   #store: UnlockedStore | null = null;
 
-  public static create(params: ImportKeyStoreParams): Promise<TypedKeyStore> {
+  public static create(params: ImportKeyStoreParams): Promise<HDKeyStore> {
     throw new WalletError('not implemented');
   }
 
   public constructor(snapshot: Readonly<KeyStore.Snapshot>) {
+    assertFrozen(snapshot);
     this.#snapshot = { ...snapshot };
   }
 
@@ -22,32 +24,26 @@ export class TypedKeyStore {
     this.#store = null;
   }
 
-  public unlock(type: UnlockKeyType.Password, password: string): Promise<boolean>;
-  public unlock(type: UnlockKeyType.DeriverdKey, key: string): Promise<boolean>;
-  public async unlock(type: UnlockKeyType, value: string): Promise<boolean> {
+  public async unlock(type: UnlockKeyType, value: string) {
     // TODO: verify unlock data correctness
     this.#store = Object.freeze({ type, value });
     return true;
   }
   // #endregion
 
-  public exportMnemonic(): Promise<string> {
+  public async find(type: KeyType, symbol: string, address: string, path?: string): Promise<unknown> {
     throw new WalletError('not implemented');
   }
 
-  public exportPrivateKey(coin: string, mainAddress: string, path?: string): Promise<string> {
+  public async exportMnemonic(): Promise<string> {
     throw new WalletError('not implemented');
   }
 
-  public derive(info: CoinInfo) {
+  public async exportPrivateKey(coin: string, mainAddress: string, path?: string): Promise<string> {
     throw new WalletError('not implemented');
   }
 
-  public findPrivateKey(symbol: string, address: string, path?: string): Promise<unknown> {
-    throw new WalletError('not implemented');
-  }
-
-  public findDeterminisitcPublicKey(symbol: string, address: string): Promise<unknown> {
+  public async deriveKey(info: CoinInfo): Promise<KeyPair> {
     throw new WalletError('not implemented');
   }
 
@@ -64,7 +60,7 @@ export class TypedKeyStore {
   }
 
   public toJSON(): Readonly<KeyStore.Snapshot> {
-    return this.#snapshot; // copy the object and freeze it
+    return Object.freeze({ ...this.#snapshot });
   }
 }
 

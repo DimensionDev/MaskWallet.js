@@ -1,5 +1,6 @@
+import { assertStorageRegistry } from './asserts';
 import { WalletError } from './errors';
-import { TypedKeyStore } from './key-store';
+import { HDKeyStore } from './key-store';
 import {
   CreateKeyStoreParams,
   CreateKeyStoreResult,
@@ -7,13 +8,15 @@ import {
   ImportKeyStoreParams,
   KeyStoreSource,
   StorageRegistry,
-  UnlockKeyType
+  SystemKind,
+  UnlockKeyType,
 } from './types';
 
 export class KeyStoreManager {
-  #storage: StorageRegistry;
+  #storage: Readonly<StorageRegistry>;
 
   public constructor(storage: StorageRegistry) {
+    assertStorageRegistry(storage);
     this.#storage = storage;
     Object.freeze(this);
   }
@@ -23,7 +26,10 @@ export class KeyStoreManager {
   }
 
   public async import(params: ImportKeyStoreParams) {
-    const snapshot = await TypedKeyStore.create(params);
+    if (params.kind !== SystemKind.HDKeyStore) {
+      throw new TypeError('This kind not supported');
+    }
+    const snapshot = await HDKeyStore.create(params);
     const exists = await this.#storage.hasKeyStore(snapshot.keyHash);
     if (exists && !params.overwrite) {
       throw new WalletError('This key hash already exists.');
@@ -32,11 +38,14 @@ export class KeyStoreManager {
   }
 
   public async export(params: ExportKeyStoreParams) {
+    if (params.kind !== SystemKind.HDKeyStore) {
+      throw new TypeError('This kind not supported');
+    }
     const snapshot = await this.#storage.getKeyStore(params.hash);
     if (snapshot === undefined) {
       throw new WalletError('This key hash not found.');
     }
-    const store = new TypedKeyStore(snapshot);
+    const store = new HDKeyStore(snapshot);
     if (params.type === KeyStoreSource.Mnemonic) {
       await store.unlock(UnlockKeyType.DeriverdKey, params.mnemonic);
       return store.exportMnemonic();
@@ -45,3 +54,8 @@ export class KeyStoreManager {
       return store.exportPrivateKey(params.chainType, params.hash);
     }
   }
+
+  public [Symbol.toStringTag]() {
+    return 'KeyStoreManager';
+  }
+}
