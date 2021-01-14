@@ -2,16 +2,19 @@
   "$schema": "http://json-schema.org/draft-07/schema",
   "type": "array",
   "items": {
-    "anyOf": [{ "$ref": "#/definitions/curve" }, { "$ref": "#/definitions/rsa" }]
+    "anyOf": [
+      { "$ref": "#/definitions/curve", "description": "Curve based Coin Info" },
+      { "$ref": "#/definitions/rsa", "description": "RSA based Coin Info" }
+    ]
   },
   "definitions": {
     "curve": {
       "type": "object",
       "properties": {
-        "coin": { "type": "string", "minLength": 1 },
         "type": { "const": "curve" },
+        "coin": { "$ref": "#/definitions/coin-name" },
         "derivationPath": { "type": "string", "minLength": 1 },
-        "curve": { "$ref": "#/definitions/curve-type" },
+        "curve": { "enum": ["SECP256k1", "ED25519", "ED25519Blake2bNano", "SubSr25519", "Curve25519", "NIST256p1"] },
         "network": { "type": "string" },
         "segWit": { "type": "string" }
       },
@@ -21,28 +24,33 @@
     "rsa": {
       "type": "object",
       "properties": {
-        "coin": { "type": "string", "minLength": 1 },
         "type": { "const": "rsa" },
+        "coin": { "$ref": "#/definitions/coin-name" },
         "suite": {
           "type": "array",
-          "items": [{ "$ref": "#/definitions/key-type" }, { "$ref": "#/definitions/algorithm-encryption" }, { "$ref": "#/definitions/algorithm-hash" }]
+          "items": [
+            {
+              "enum": ["RSA-4096"],
+              "description": "Key Type"
+            },
+            {
+              "enum": ["AES-256-CBC"],
+              "description": "Encryption algorithm"
+            },
+            {
+              "enum": ["SHA-256", "SHA-384"],
+              "description": "Hash algorithm"
+            }
+          ]
         },
         "network": { "type": "string" }
       },
       "required": ["type", "coin", "suite", "network"],
       "additionalProperties": false
     },
-    "curve-type": {
-      "enum": ["SECP256k1", "ED25519", "ED25519Blake2bNano", "SubSr25519", "Curve25519", "NIST256p1"]
-    },
-    "key-type": {
-      "enum": ["RSA-4096"]
-    },
-    "algorithm-encryption": {
-      "enum": ["AES-256-CBC"]
-    },
-    "algorithm-hash": {
-      "enum": ["SHA-256", "SHA-384"]
+    "coin-name": {
+      "type": "string",
+      "minLength": 1
     }
   }
 }
