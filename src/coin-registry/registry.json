@@ -1,0 +1,17 @@
+[
+  { "coin": "bitcoin", "derivationPath": "m/44'/0'/0'/0/0", "curve": "SECP256k1", "network": "MainNet" },
+  { "coin": "bitcoin", "derivationPath": "m/44'/1'/0'/0/0", "curve": "SECP256k1", "network": "TestNet" },
+  { "coin": "bitcoin", "derivationPath": "m/49'/0'/0'/0/0", "curve": "SECP256k1", "network": "MainNet", "segWit": "P2WPKH" },
+  { "coin": "bitcoin", "derivationPath": "m/49'/1'/0'/0/0", "curve": "SECP256k1", "network": "TestNet", "segWit": "P2WPKH" },
+  { "coin": "bitcoincash", "derivationPath": "m/44'/145'/0'/0/0", "curve": "SECP256k1", "network": "MainNet" },
+  { "coin": "bitcoincash", "derivationPath": "m/44'/1'/0'/0/0", "curve": "SECP256k1", "network": "TestNet" },
+  { "coin": "litecoin", "derivationPath": "m/44'/2'/0'/0/0", "curve": "SECP256k1", "network": "MainNet" },
+  { "coin": "litecoin", "derivationPath": "m/44'/1'/0'/0/0", "curve": "SECP256k1", "network": "TestNet" },
+  { "coin": "litecoin", "derivationPath": "m/49'/2'/0'/0/0", "curve": "SECP256k1", "network": "MainNet", "segWit": "P2WPKH" },
+  { "coin": "litecoin", "derivationPath": "m/49'/1'/0'/0/0", "curve": "SECP256k1", "network": "TestNet", "segWit": "P2WPKH" },
+  { "coin": "tron", "derivationPath": "m/44'/195'/0'/0/0", "curve": "SECP256k1" },
+  { "coin": "nervos", "derivationPath": "m/44'/309'/0'/0/0", "curve": "SECP256k1", "network": "MainNet" },
+  { "coin": "nervos", "derivationPath": "m/44'/309'/0'/0/0", "curve": "SECP256k1", "network": "TestNet" },
+  { "coin": "polkadot", "derivationPath": "//polkadot//imToken/0", "curve": "SubSr25519" },
+  { "coin": "kusama", "derivationPath": "//kusama//imToken/0", "curve": "SubSr25519" }
+]

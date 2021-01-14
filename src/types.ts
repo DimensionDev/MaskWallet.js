@@ -2,7 +2,7 @@ export interface CoinInfo {
   coin: string;
   derivationPath: string;
   curve: CurveType;
-  network: NetworkType;
+  network?: NetworkType;
   segWit?: string;
 }
 
@@ -18,10 +18,18 @@ export enum NetworkType {
 }
 
 export enum CurveType {
+  /** secp256k1 */
   SECP256k1 = 'SECP256k1',
+  /** ed25519 */
   ED25519 = 'ED25519',
-  Curve25519 = 'Curve25519',
+  /** ed25519-blake2b-nano */
+  ED25519Blake2bNano = 'ED25519Blake2bNano',
+  /** SubSr25519 */
   SubSr25519 = 'SubSr25519',
+  /** curve25519 */
+  Curve25519 = 'Curve25519',
+  /** nist256p1 */
+  NIST256p1 = 'NIST256p1',
 }
 
 export enum KeyType {
@@ -29,7 +37,7 @@ export enum KeyType {
   PrivateKey = 'PrivateKey',
 }
 
-export enum UnlockedKeyType {
+export enum UnlockKeyType {
   Password = 'Password',
   DeriverdKey = 'DeriverdKey',
 }
@@ -45,12 +53,12 @@ export interface StorageRegistry {
 export enum KeyStoreSource {
   Mnemonic = 'Mnemonic',
   PrivateKey = 'PrivateKey',
-  EcryptedJSON = 'EcryptedJSON',
+  EncryptedJSON = 'EncryptedJSON',
 }
 
 export namespace KeyStore {
   interface PayloadMapping {
-    keystore: EcryptedJSON;
+    keystore: EncryptedJSON;
   }
 
   export interface Snapshot<T extends keyof PayloadMapping = keyof PayloadMapping> {
@@ -72,7 +80,7 @@ export namespace KeyStore {
     passwordHint: string;
   }
 
-  export interface EcryptedJSON {
+  export interface EncryptedJSON {
     cipher: string;
     cipherparams: unknown;
     ciphertext: string;
@@ -82,10 +90,24 @@ export namespace KeyStore {
   }
 }
 
-export interface CreateKeyStoreParams {
-  name?: string;
-  password: string;
-  passwordHint?: string;
+export type CreateKeyStoreParams = CreateKeyStoreParams.Type;
+
+export namespace CreateKeyStoreParams {
+  export type Type = HDKeyStore;
+
+  export interface HDKeyStore {
+    type: KeyStoreSource.Mnemonic;
+    name?: string;
+    password: string;
+    passwordHint?: string;
+  }
+}
+
+export interface CreateKeyStoreResult {
+  name: string;
+  source: KeyStoreSource;
+  pairs: unknown[];
+  createdAt: Date;
 }
 
 export type ImportKeyStoreParams = ImportKeyStoreParams.Type;
@@ -106,8 +128,8 @@ export namespace ImportKeyStoreParams {
   }
 
   export interface JSONKeyStore extends Generanl {
-    type: KeyStoreSource.EcryptedJSON;
-    payload: KeyStore.EcryptedJSON;
+    type: KeyStoreSource.EncryptedJSON;
+    payload: KeyStore.EncryptedJSON;
   }
 
   export interface PrivateKey extends Generanl {
@@ -145,7 +167,7 @@ export namespace SignParams {
     hash: KeyStore.Snapshot['hash'];
     chainType: ChainType;
     address: string;
-    unlockKeyType: UnlockedKeyType;
+    unlockKeyType: UnlockKeyType;
     input: unknown;
   }
 }

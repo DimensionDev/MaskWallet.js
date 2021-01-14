@@ -1,73 +1,74 @@
-import { CoinInfo, ImportKeyStoreParams, KeyStore, UnlockedKeyType } from './types';
+import { WalletError } from './errors';
+import { CoinInfo, ImportKeyStoreParams, KeyStore, UnlockKeyType } from './types';
 
 export class TypedKeyStore {
-  #input: KeyStore.Snapshot;
+  #snapshot: KeyStore.Snapshot;
   #store: UnlockedStore | null = null;
 
-  static create(params: ImportKeyStoreParams): Promise<TypedKeyStore> {
-    throw new Error('not implemented');
+  public static create(params: ImportKeyStoreParams): Promise<TypedKeyStore> {
+    throw new WalletError('not implemented');
   }
 
-  constructor(input: Readonly<KeyStore.Snapshot>) {
-    this.#input = input;
+  public constructor(snapshot: Readonly<KeyStore.Snapshot>) {
+    this.#snapshot = { ...snapshot };
   }
 
   // #region locker
-  isLocked(): boolean {
+  public isLocked() {
     return this.#store === null;
   }
 
-  lock(): void {
+  public lock() {
     this.#store = null;
   }
 
-  unlock(type: UnlockedKeyType.Password, password: string): Promise<boolean>;
-  unlock(type: UnlockedKeyType.DeriverdKey, key: string): Promise<boolean>;
-  async unlock(type: UnlockedKeyType, value: string): Promise<boolean> {
-    // TODO: verify unlock data correntness
+  public unlock(type: UnlockKeyType.Password, password: string): Promise<boolean>;
+  public unlock(type: UnlockKeyType.DeriverdKey, key: string): Promise<boolean>;
+  public async unlock(type: UnlockKeyType, value: string): Promise<boolean> {
+    // TODO: verify unlock data correctness
     this.#store = Object.freeze({ type, value });
     return true;
   }
   // #endregion
 
-  exportMnemonic(mnemonic: string): Promise<string> {
-    throw new Error('not implemented');
+  public exportMnemonic(): Promise<string> {
+    throw new WalletError('not implemented');
   }
 
-  exportPrivateKey(coin: string, mainAddress: string, path?: string): Promise<string> {
-    throw new Error('not implemented');
+  public exportPrivateKey(coin: string, mainAddress: string, path?: string): Promise<string> {
+    throw new WalletError('not implemented');
   }
 
-  derive(info: CoinInfo) {
-    throw new Error('not implemented');
+  public derive(info: CoinInfo) {
+    throw new WalletError('not implemented');
   }
 
-  findPrivateKey(symbol: string, address: string, path?: string): Promise<unknown> {
-    throw new Error('not implemented');
+  public findPrivateKey(symbol: string, address: string, path?: string): Promise<unknown> {
+    throw new WalletError('not implemented');
   }
 
-  findDeterminisitcPublicKey(symbol: string, address: string): Promise<unknown> {
-    throw new Error('not implemented');
+  public findDeterminisitcPublicKey(symbol: string, address: string): Promise<unknown> {
+    throw new WalletError('not implemented');
   }
 
-  sign(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
-    throw new Error('not implemented');
+  public sign(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
+    throw new WalletError('not implemented');
   }
 
-  signRecoverableHash(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
-    throw new Error('not implemented');
+  public signRecoverableHash(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
+    throw new WalletError('not implemented');
   }
 
-  get keyHash() {
-    return this.#input.hash;
+  public get keyHash() {
+    return this.#snapshot.hash;
   }
 
-  toJSON(): Readonly<KeyStore.Snapshot> {
-    return this.#input; // copy the object and freeze it
+  public toJSON(): Readonly<KeyStore.Snapshot> {
+    return this.#snapshot; // copy the object and freeze it
   }
 }
 
 interface UnlockedStore {
-  type: UnlockedKeyType;
+  type: UnlockKeyType;
   value: string;
 }

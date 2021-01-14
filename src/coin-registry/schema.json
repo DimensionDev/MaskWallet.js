@@ -9,13 +9,15 @@
       "type": "object",
       "properties": {
         "coin": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "derivationPath": {
-          "type": "string"
+          "type": "string",
+          "minLength": 1
         },
         "curve": {
-          "enum": ["SECP256k1", "ED25519", "Curve25519", "SubSr25519"]
+          "enum": ["SECP256k1", "ED25519", "ED25519Blake2bNano", "SubSr25519", "Curve25519", "NIST256p1"]
         },
         "network": {
           "enum": ["MainNet", "TestNet"]

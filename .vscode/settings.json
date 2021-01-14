@@ -5,8 +5,8 @@
   },
   "json.schemas": [
     {
-      "fileMatch": ["/src/coin-info.json"],
-      "url": "/.vscode/schema/coin-registry.json"
+      "fileMatch": ["/src/coin-registry/registry.json"],
+      "url": "/src/coin-registry/schema.json"
     }
   ]
 }
