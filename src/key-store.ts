@@ -1,4 +1,4 @@
-import { assertFrozen, assertPlainObject } from './asserts';
+import { assertPlainObject, assertSnapshot } from './asserts';
 import { WalletError } from './errors';
 import { CoinInfo, ImportKeyStoreParams, KeyPair, KeyStore, KeyType, TypedKeyStore, UnlockKeyType } from './types';
 
@@ -7,13 +7,21 @@ export class HDKeyStore implements TypedKeyStore {
   #store: UnlockedStore | null = null;
 
   public static create(params: ImportKeyStoreParams): Promise<HDKeyStore> {
+    assertPlainObject(params, '`params` parameter');
     throw new WalletError('not implemented');
   }
 
   public constructor(snapshot: Readonly<KeyStore.Snapshot>) {
-    assertFrozen(snapshot);
-    assertPlainObject(snapshot);
-    this.#snapshot = { ...snapshot };
+    assertSnapshot(snapshot);
+    this.#snapshot = Object.freeze<KeyStore.Snapshot>({
+      version: snapshot.version,
+      hash: snapshot.hash,
+
+      format: snapshot.format,
+      payload: Object.freeze({ ...snapshot.payload }),
+
+      metadata: snapshot.metadata,
+    });
   }
 
   // #region locker
@@ -61,7 +69,7 @@ export class HDKeyStore implements TypedKeyStore {
   }
 
   public toJSON(): Readonly<KeyStore.Snapshot> {
-    return Object.freeze({ ...this.#snapshot });
+    return this.#snapshot;
   }
 }
 

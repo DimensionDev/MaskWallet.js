@@ -22,12 +22,12 @@ export class KeyStoreManager {
   }
 
   public async create(params: CreateKeyStoreParams): Promise<CreateKeyStoreResult> {
-    assertPlainObject(params);
+    assertPlainObject(params, '`params` parameter');
     throw new WalletError('not implemented');
   }
 
   public async import(params: ImportKeyStoreParams) {
-    assertPlainObject(params);
+    assertPlainObject(params, '`params` parameter');
     if (params.kind !== SystemKind.HDKeyStore) {
       throw new TypeError('This kind not supported');
     }
@@ -40,7 +40,7 @@ export class KeyStoreManager {
   }
 
   public async export(params: ExportKeyStoreParams) {
-    assertPlainObject(params);
+    assertPlainObject(params, '`params` parameter');
     if (params.kind !== SystemKind.HDKeyStore) {
       throw new TypeError('This kind not supported');
     }

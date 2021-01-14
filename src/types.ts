@@ -97,7 +97,7 @@ export namespace KeyStore {
     hash: string;
 
     format: T;
-    payload: PayloadMapping[T];
+    payload: Readonly<PayloadMapping[T]>;
 
     metadata: Metadata;
   }
