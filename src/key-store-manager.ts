@@ -1,4 +1,4 @@
-import { assertStorageRegistry } from './asserts';
+import { assertPlainObject, assertStorageRegistry } from './asserts';
 import { WalletError } from './errors';
 import { HDKeyStore } from './key-store';
 import {
@@ -22,10 +22,12 @@ export class KeyStoreManager {
   }
 
   public async create(params: CreateKeyStoreParams): Promise<CreateKeyStoreResult> {
+    assertPlainObject(params);
     throw new WalletError('not implemented');
   }
 
   public async import(params: ImportKeyStoreParams) {
+    assertPlainObject(params);
     if (params.kind !== SystemKind.HDKeyStore) {
       throw new TypeError('This kind not supported');
     }
@@ -38,6 +40,7 @@ export class KeyStoreManager {
   }
 
   public async export(params: ExportKeyStoreParams) {
+    assertPlainObject(params);
     if (params.kind !== SystemKind.HDKeyStore) {
       throw new TypeError('This kind not supported');
     }

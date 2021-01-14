@@ -72,7 +72,7 @@ export interface KeyPair {
 }
 
 export interface StorageRegistry {
-  hashes(): Promise<Array<KeyStore.Snapshot['hash']>>;
+  hashes(): Promise<ReadonlyArray<KeyStore.Snapshot['hash']>>;
   hasKeyStore(hash: KeyStore.Snapshot['hash']): Promise<boolean>;
   getKeyStore(hash: KeyStore.Snapshot['hash']): Promise<KeyStore.Snapshot | undefined>;
   setKeyStore(snapshot: Readonly<KeyStore.Snapshot>): Promise<void>;

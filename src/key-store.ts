@@ -1,4 +1,4 @@
-import { assertFrozen } from './asserts';
+import { assertFrozen, assertPlainObject } from './asserts';
 import { WalletError } from './errors';
 import { CoinInfo, ImportKeyStoreParams, KeyPair, KeyStore, KeyType, TypedKeyStore, UnlockKeyType } from './types';
 
@@ -12,6 +12,7 @@ export class HDKeyStore implements TypedKeyStore {
 
   public constructor(snapshot: Readonly<KeyStore.Snapshot>) {
     assertFrozen(snapshot);
+    assertPlainObject(snapshot);
     this.#snapshot = { ...snapshot };
   }
 
