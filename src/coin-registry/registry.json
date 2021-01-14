@@ -13,5 +13,10 @@
   { "coin": "nervos", "derivationPath": "m/44'/309'/0'/0/0", "curve": "SECP256k1", "network": "MainNet" },
   { "coin": "nervos", "derivationPath": "m/44'/309'/0'/0/0", "curve": "SECP256k1", "network": "TestNet" },
   { "coin": "polkadot", "derivationPath": "//polkadot//imToken/0", "curve": "SubSr25519" },
-  { "coin": "kusama", "derivationPath": "//kusama//imToken/0", "curve": "SubSr25519" }
+  { "coin": "kusama", "derivationPath": "//kusama//imToken/0", "curve": "SubSr25519" },
+  { "coin": "ethereum", "derivationPath": "m/44'/60'/0'/0/0", "curve": "SECP256k1", "network": "MainNet" },
+  { "coin": "ethereum", "derivationPath": "m/44'/60'/0'/0/0", "curve": "SECP256k1", "network": "Ropsten" },
+  { "coin": "ethereum", "derivationPath": "m/44'/60'/0'/0/0", "curve": "SECP256k1", "network": "Rinkeby" },
+  { "coin": "ethereum", "derivationPath": "m/44'/60'/0'/0/0", "curve": "SECP256k1", "network": "Kovan" },
+  { "coin": "ethereum", "derivationPath": "m/44'/60'/0'/0/0", "curve": "SECP256k1", "network": "Gorli" }
 ]

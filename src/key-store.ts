@@ -38,6 +38,12 @@ export class HDKeyStore implements TypedKeyStore {
     this.#store = Object.freeze({ type, value });
     return true;
   }
+
+  public assertUnlocked() {
+    if (this.isLocked()) {
+      throw new WalletError('This key store need unlock.');
+    }
+  }
   // #endregion
 
   public async find(type: KeyType, symbol: string, address: string, path?: string): Promise<unknown> {
@@ -45,22 +51,27 @@ export class HDKeyStore implements TypedKeyStore {
   }
 
   public async exportMnemonic(): Promise<string> {
+    this.assertUnlocked();
     throw new WalletError('not implemented');
   }
 
   public async exportPrivateKey(coin: string, mainAddress: string, path?: string): Promise<string> {
+    this.assertUnlocked();
     throw new WalletError('not implemented');
   }
 
   public async deriveKey(info: CoinInfo): Promise<KeyPair> {
+    this.assertUnlocked();
     throw new WalletError('not implemented');
   }
 
   public sign(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
+    this.assertUnlocked();
     throw new WalletError('not implemented');
   }
 
   public signRecoverableHash(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
+    this.assertUnlocked();
     throw new WalletError('not implemented');
   }
 
