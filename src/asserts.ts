@@ -1,4 +1,4 @@
-import { KeyStore, StorageRegistry } from './types';
+import { KeyStoreSnapshot, StorageRegistry } from './types';
 
 export function assertFrozen<T>(input: T, message = '.input'): asserts input is Readonly<NonNullable<T>> {
   if (!Object.isFrozen(input)) {
@@ -16,7 +16,9 @@ export function assertPlainObject<T>(input: T, message = '.input'): asserts inpu
 export function assertSnapshot(snapshot: KeyStoreSnapshot | undefined, message = '.snapshot') {
   assertFrozen(snapshot, message);
   assertPlainObject(snapshot, message);
-  assertPlainObject(snapshot.payload, message);
+  assertPlainObject(snapshot.meta, message);
+  assertPlainObject(snapshot.crypto, message);
+  assertPlainObject(snapshot.pairs, message);
 }
 
 export function assertStorageRegistry(registry: StorageRegistry, message = '.registry'): asserts registry is Readonly<StorageRegistry> {
