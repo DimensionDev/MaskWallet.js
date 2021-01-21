@@ -2,24 +2,30 @@ import { CurveType } from './basic';
 
 export type CryptoKey = PublicKey | PrivateKey;
 
-export class PublicKey {
+export abstract class PublicKey {
   public readonly curve: CurveType;
-  public readonly deterministic: boolean;
 
   constructor(curve: CurveType) {
     this.curve = curve;
-    this.deterministic = false;
   }
 
-  derive(path: string) {
-    return;
-  }
+  abstract derive(path: string): this;
+
+  abstract get deterministic(): boolean;
 }
 
 export class SEPC256kPublicKey extends PublicKey {
   constructor(data: string) {
     super(CurveType.SECP256k1);
     Object.freeze(this);
+  }
+
+  derive(path: string): this {
+    throw new Error('Method not implemented.');
+  }
+
+  get deterministic(): boolean {
+    return false;
   }
 }
 
@@ -28,37 +34,39 @@ export class SubSr25519PublicKey extends PublicKey {
     super(CurveType.SubSr25519);
     Object.freeze(this);
   }
+
+  derive(path: string): this {
+    throw new Error('Method not implemented.');
+  }
+
+  get deterministic(): boolean {
+    return false;
+  }
 }
 
-export class PrivateKey {
+export abstract class PrivateKey {
   public readonly curve: CurveType;
-  public readonly deterministic: boolean;
 
   static fromSeed(seed: string): PrivateKey {
     throw new Error('not implemented');
   }
 
-  static fromMnemonic(seed: string): PrivateKey {
+  static fromMnemonic(mnemonic: string): PrivateKey {
     throw new Error('not implemented');
   }
 
   constructor(curve: CurveType) {
     this.curve = curve;
-    this.deterministic = false;
     Object.freeze(this);
   }
 
-  getPublicKey(): PublicKey {
-    throw new Error('not implemented');
-  }
+  abstract get deterministic(): boolean;
 
-  sign(data: string): string {
-    throw new Error('not implemented');
-  }
+  abstract get publicKey(): PublicKey;
 
-  signRecoverable(data: string): string {
-    throw new Error('not implemented');
-  }
+  abstract sign(data: string): string;
+
+  abstract signRecoverable(data: string): string;
 }
 
 export class SEPC256kPrivateKey extends PrivateKey {
@@ -66,11 +74,43 @@ export class SEPC256kPrivateKey extends PrivateKey {
     super(CurveType.SECP256k1);
     Object.freeze(this);
   }
+
+  get deterministic(): boolean {
+    return false;
+  }
+
+  get publicKey(): PublicKey {
+    throw new Error('Method not implemented.');
+  }
+
+  sign(data: string): string {
+    throw new Error('Method not implemented.');
+  }
+
+  signRecoverable(data: string): string {
+    throw new Error('Method not implemented.');
+  }
 }
 
 export class SubSr25519PrivateKey extends PrivateKey {
   constructor(data: string) {
     super(CurveType.SubSr25519);
     Object.freeze(this);
+  }
+
+  get deterministic(): boolean {
+    return false;
+  }
+
+  get publicKey(): PublicKey {
+    throw new Error('Method not implemented.');
+  }
+
+  sign(data: string): string {
+    throw new Error('Method not implemented.');
+  }
+
+  signRecoverable(data: string): string {
+    throw new Error('Method not implemented.');
   }
 }

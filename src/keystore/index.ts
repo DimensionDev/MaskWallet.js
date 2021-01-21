@@ -1,14 +1,16 @@
 import { assertPlainObject, assertSnapshot } from 'asserts';
-import { KeyStore } from 'crypto-suite/types';
+import { CoinInfo } from 'coin-registry';
 import { WalletError } from 'errors';
-import { CoinInfo, CryptoKey, ImportKeyStoreParams, KeyPair, KeyStoreSnapshot, KeyType, PrivateKey, PublicKey, UnlockKeyType } from 'types';
+import { CryptoKey, ImportKeyStoreParams, KeyPair, KeyStoreSnapshot, KeyType, PrivateKey, PublicKey, UnlockKeyType } from 'types';
+
+type UnlockedStore = readonly [UnlockKeyType, string];
 
 export class HDKeyStore {
   #store: UnlockedStore | null = null;
-  #hash: string;
-  #crypto: KeyStore;
+  #hash: KeyStoreSnapshot['hash'];
+  #crypto: KeyStoreSnapshot['crypto'];
   #meta: KeyStoreSnapshot['meta'];
-  #pairs: KeyStoreSnapshot['pairs'] = [];
+  #pairs: KeyStoreSnapshot['pairs'];
 
   static async create(params: ImportKeyStoreParams): Promise<HDKeyStore> {
     assertPlainObject(params, '`params` parameter');
@@ -40,11 +42,11 @@ export class HDKeyStore {
 
   async unlock(type: UnlockKeyType, value: string) {
     // TODO: verify unlock data correctness
-    this.#store = Object.freeze({ type, value });
+    this.#store = Object.freeze<UnlockedStore>([type, value]);
     return true;
   }
 
-  assertUnlocked() {
+  private assertUnlocked() {
     if (this.isLocked()) {
       throw new WalletError('This key store need unlock.');
     }
@@ -109,11 +111,6 @@ export class HDKeyStore {
       meta: this.#meta,
     });
   }
-}
-
-interface UnlockedStore {
-  type: UnlockKeyType;
-  value: string;
 }
 
 function cloneKeyPair(pair: KeyPair): Readonly<KeyPair> {
