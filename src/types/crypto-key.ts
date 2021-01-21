@@ -9,7 +9,6 @@ export class PublicKey {
   constructor(curve: CurveType) {
     this.curve = curve;
     this.deterministic = false;
-    Object.freeze(this);
   }
 
   derive(path: string) {
@@ -20,12 +19,14 @@ export class PublicKey {
 export class SEPC256kPublicKey extends PublicKey {
   constructor(data: string) {
     super(CurveType.SECP256k1);
+    Object.freeze(this);
   }
 }
 
 export class SubSr25519PublicKey extends PublicKey {
   constructor(data: string) {
     super(CurveType.SubSr25519);
+    Object.freeze(this);
   }
 }
 
@@ -57,5 +58,19 @@ export class PrivateKey {
 
   signRecoverable(data: string): string {
     throw new Error('not implemented');
+  }
+}
+
+export class SEPC256kPrivateKey extends PrivateKey {
+  constructor(data: string) {
+    super(CurveType.SECP256k1);
+    Object.freeze(this);
+  }
+}
+
+export class SubSr25519PrivateKey extends PrivateKey {
+  constructor(data: string) {
+    super(CurveType.SubSr25519);
+    Object.freeze(this);
   }
 }

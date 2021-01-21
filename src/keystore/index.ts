@@ -1,6 +1,6 @@
 import { assertPlainObject, assertSnapshot } from 'asserts';
 import { WalletError } from 'errors';
-import { CoinInfo, CurveType, ImportKeyStoreParams, KeyStoreSnapshot, KeyType, UnlockKeyType, KeyPair } from 'types';
+import { CoinInfo, CurveType, ImportKeyStoreParams, KeyStoreSnapshot, KeyType, UnlockKeyType, KeyPair, CryptoKey, PrivateKey, PublicKey } from 'types';
 import { KeyStore } from 'crypto-suite/types';
 
 export class HDKeyStore {
@@ -51,7 +51,9 @@ export class HDKeyStore {
   }
   // #endregion
 
-  async find(type: KeyType, symbol: string, address: string, path?: string): Promise<unknown> {
+  async find(type: KeyType.PublicKey, symbol: string, address: string, path?: string): Promise<PublicKey>;
+  async find(type: KeyType.PrivateKey, symbol: string, address: string, path?: string): Promise<PrivateKey>;
+  async find(type: KeyType, symbol: string, address: string, path?: string): Promise<CryptoKey> {
     return;
   }
 
