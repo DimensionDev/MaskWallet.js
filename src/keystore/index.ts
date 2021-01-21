@@ -1,7 +1,7 @@
 import { assertPlainObject, assertSnapshot } from 'asserts';
-import { WalletError } from 'errors';
-import { CoinInfo, CurveType, ImportKeyStoreParams, KeyStoreSnapshot, KeyType, UnlockKeyType, KeyPair, CryptoKey, PrivateKey, PublicKey } from 'types';
 import { KeyStore } from 'crypto-suite/types';
+import { WalletError } from 'errors';
+import { CoinInfo, CryptoKey, ImportKeyStoreParams, KeyPair, KeyStoreSnapshot, KeyType, PrivateKey, PublicKey, UnlockKeyType } from 'types';
 
 export class HDKeyStore {
   #store: UnlockedStore | null = null;
@@ -18,7 +18,7 @@ export class HDKeyStore {
     throw new WalletError('not implemented');
   }
 
-  private constructor(snapshot: Readonly<KeyStoreSnapshot>) {
+  constructor(snapshot: Readonly<KeyStoreSnapshot>) {
     assertSnapshot(snapshot);
     if (snapshot.type !== 'hd') {
       throw new Error('unsupported snapshot type');
@@ -51,10 +51,14 @@ export class HDKeyStore {
   }
   // #endregion
 
+  async derive(info: CoinInfo): Promise<KeyPair> {
+    throw new WalletError('not implemented');
+  }
+
   async find(type: KeyType.PublicKey, symbol: string, address: string, path?: string): Promise<PublicKey>;
   async find(type: KeyType.PrivateKey, symbol: string, address: string, path?: string): Promise<PrivateKey>;
   async find(type: KeyType, symbol: string, address: string, path?: string): Promise<CryptoKey> {
-    return;
+    throw new WalletError('not implemented');
   }
 
   async exportMnemonic(): Promise<string> {
