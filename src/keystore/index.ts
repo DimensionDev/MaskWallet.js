@@ -1,17 +1,17 @@
-import { assertPlainObject, assertSnapshot } from './asserts';
-import { WalletError } from './errors';
-import { CoinInfo, ImportKeyStoreParams, KeyPair, KeyStore, KeyType, TypedKeyStore, UnlockKeyType } from './types';
+import { assertPlainObject, assertSnapshot } from 'asserts';
+import { WalletError } from 'errors';
+import { CoinInfo, ImportKeyStoreParams, KeyPair, KeyStore, KeyType, TypedKeyStore, UnlockKeyType } from 'keystore/types';
 
 export class HDKeyStore implements TypedKeyStore {
   #snapshot: Readonly<KeyStore.Snapshot>;
   #store: UnlockedStore | null = null;
 
-  public static create(params: ImportKeyStoreParams): Promise<HDKeyStore> {
+  static create(params: ImportKeyStoreParams): Promise<HDKeyStore> {
     assertPlainObject(params, '`params` parameter');
     throw new WalletError('not implemented');
   }
 
-  public constructor(snapshot: Readonly<KeyStore.Snapshot>) {
+  constructor(snapshot: Readonly<KeyStore.Snapshot>) {
     assertSnapshot(snapshot);
     this.#snapshot = Object.freeze<KeyStore.Snapshot>({
       version: snapshot.version,
@@ -25,61 +25,61 @@ export class HDKeyStore implements TypedKeyStore {
   }
 
   // #region locker
-  public isLocked() {
+  isLocked() {
     return this.#store === null;
   }
 
-  public lock() {
+  lock() {
     this.#store = null;
   }
 
-  public async unlock(type: UnlockKeyType, value: string) {
+  async unlock(type: UnlockKeyType, value: string) {
     // TODO: verify unlock data correctness
     this.#store = Object.freeze({ type, value });
     return true;
   }
 
-  public assertUnlocked() {
+  assertUnlocked() {
     if (this.isLocked()) {
       throw new WalletError('This key store need unlock.');
     }
   }
   // #endregion
 
-  public async find(type: KeyType, symbol: string, address: string, path?: string): Promise<unknown> {
+  async find(type: KeyType, symbol: string, address: string, path?: string): Promise<unknown> {
     throw new WalletError('not implemented');
   }
 
-  public async exportMnemonic(): Promise<string> {
+  async exportMnemonic(): Promise<string> {
     this.assertUnlocked();
     throw new WalletError('not implemented');
   }
 
-  public async exportPrivateKey(coin: string, mainAddress: string, path?: string): Promise<string> {
+  async exportPrivateKey(coin: string, mainAddress: string, path?: string): Promise<string> {
     this.assertUnlocked();
     throw new WalletError('not implemented');
   }
 
-  public async deriveKey(info: CoinInfo): Promise<KeyPair> {
+  async deriveKey(info: CoinInfo): Promise<KeyPair> {
     this.assertUnlocked();
     throw new WalletError('not implemented');
   }
 
-  public sign(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
+  sign(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
     this.assertUnlocked();
     throw new WalletError('not implemented');
   }
 
-  public signRecoverableHash(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
+  signRecoverableHash(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
     this.assertUnlocked();
     throw new WalletError('not implemented');
   }
 
-  public get keyHash() {
+  get keyHash() {
     return this.#snapshot.hash;
   }
 
-  public toJSON(): Readonly<KeyStore.Snapshot> {
+  toJSON(): Readonly<KeyStore.Snapshot> {
     return this.#snapshot;
   }
 }

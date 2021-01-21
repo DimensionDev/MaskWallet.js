@@ -1,0 +1,1 @@
+export { HDCryptoSuite } from './hd';

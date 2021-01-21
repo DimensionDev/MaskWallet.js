@@ -1,4 +1,5 @@
-export class WalletError extends Error {
+export class CryptoSuiteError extends Error {
+  readonly name = 'CryptoSuiteError';
   readonly cause?: Error;
 
   constructor(message: string, cause?: Error) {

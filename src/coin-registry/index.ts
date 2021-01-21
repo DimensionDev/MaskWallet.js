@@ -1,14 +1,14 @@
-import { CurveType } from '../types';
+import { CurveType } from 'keystore/types';
 import registry from './registry.json';
 
 registry.forEach(Object.freeze);
 Object.freeze(registry);
 
 export function getCoinRegistry() {
-  return registry as ReadonlyArray<Readonly<CoinInfo>>;
+  return registry as ReadonlyArray<CoinInfo>;
 }
 
-export type CoinInfo = CoinInfo.Type;
+export type CoinInfo = Readonly<CoinInfo.Type>;
 
 export namespace CoinInfo {
   export type Type = CurveCoin | RSACoin;

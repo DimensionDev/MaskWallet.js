@@ -1,6 +1,6 @@
-import { assertPlainObject, assertStorageRegistry } from './asserts';
-import { WalletError } from './errors';
-import { HDKeyStore } from './key-store';
+import { assertPlainObject, assertStorageRegistry } from 'asserts';
+import { WalletError } from 'errors';
+import { HDKeyStore } from 'keystore';
 import {
   CreateKeyStoreParams,
   CreateKeyStoreResult,
@@ -10,41 +10,41 @@ import {
   StorageRegistry,
   SystemKind,
   UnlockKeyType,
-} from './types';
+} from 'keystore/types';
 
-export class KeyStoreManager {
+export class HDKeyStoreManager {
   #storage: Readonly<StorageRegistry>;
 
-  public constructor(storage: StorageRegistry) {
+  constructor(storage: StorageRegistry) {
     assertStorageRegistry(storage);
     this.#storage = storage;
     Object.freeze(this);
   }
 
-  public async create(params: CreateKeyStoreParams): Promise<CreateKeyStoreResult> {
+  async create(params: CreateKeyStoreParams): Promise<CreateKeyStoreResult> {
     assertPlainObject(params, '`params` parameter');
     throw new WalletError('not implemented');
   }
 
-  public async import(params: ImportKeyStoreParams) {
+  async import(params: ImportKeyStoreParams) {
     assertPlainObject(params, '`params` parameter');
     if (params.kind !== SystemKind.HDKeyStore) {
       throw new TypeError('This kind not supported');
     }
     const snapshot = await HDKeyStore.create(params);
-    const exists = await this.#storage.hasKeyStore(snapshot.keyHash);
+    const exists = await this.#storage.hasHDKeyStore(snapshot.keyHash);
     if (exists && !params.overwrite) {
       throw new WalletError('This key hash already exists.');
     }
-    await this.#storage.setKeyStore(snapshot.toJSON());
+    await this.#storage.setHDKeyStore(snapshot.keyHash, snapshot.toJSON());
   }
 
-  public async export(params: ExportKeyStoreParams) {
+  async export(params: ExportKeyStoreParams) {
     assertPlainObject(params, '`params` parameter');
     if (params.kind !== SystemKind.HDKeyStore) {
       throw new TypeError('This kind not supported');
     }
-    const snapshot = await this.#storage.getKeyStore(params.hash);
+    const snapshot = await this.#storage.getHDKeyStore(params.hash);
     if (snapshot === undefined) {
       throw new WalletError('This key hash not found.');
     }
@@ -58,7 +58,7 @@ export class KeyStoreManager {
     }
   }
 
-  public [Symbol.toStringTag]() {
+  get [Symbol.toStringTag]() {
     return 'KeyStoreManager';
   }
 }

@@ -1,28 +1,28 @@
-import { StorageRegistry } from './types';
-import { Wallet } from './wallet';
-import { KeyStoreManager } from './key-store-manager';
+import { StorageRegistry } from './keystore/types';
+import { HDWallet } from './keystore/wallet';
+import { HDKeyStoreManager } from './key-store-manager';
 
 export { getCoinRegistry } from './coin-registry';
 
-let wallet: Wallet | undefined;
-let keyStore: KeyStoreManager | undefined;
+let wallet: HDWallet | undefined;
+let keyStore: HDKeyStoreManager | undefined;
 
 export function setStorageRegistry(registry: StorageRegistry): void {
   if (wallet !== undefined || keyStore !== undefined) {
     throw new TypeError('Not allowed');
   }
-  wallet = new Wallet(registry);
-  keyStore = new KeyStoreManager(registry);
+  wallet = new HDWallet(registry);
+  keyStore = new HDKeyStoreManager(registry);
 }
 
-export function getWalletInstance() {
+export function getHDWalletInstance() {
   if (wallet === undefined) {
     throw new TypeError('Please provide an `StorageRegistry`.');
   }
   return wallet;
 }
 
-export function getKeyStoreManager() {
+export function getHDKeyStoreManager() {
   if (keyStore === undefined) {
     throw new TypeError('Please provide an `StorageRegistry`.');
   }

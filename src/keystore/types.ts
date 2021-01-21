@@ -1,3 +1,5 @@
+import { KeyStore as EncryptedJSON } from '../crypto-suite/types';
+
 export interface CoinInfo {
   coin: string;
   derivationPath: string;
@@ -72,11 +74,11 @@ export interface KeyPair {
 }
 
 export interface StorageRegistry {
-  hashes(): Promise<ReadonlyArray<KeyStore.Snapshot['hash']>>;
-  hasKeyStore(hash: KeyStore.Snapshot['hash']): Promise<boolean>;
-  getKeyStore(hash: KeyStore.Snapshot['hash']): Promise<KeyStore.Snapshot | undefined>;
-  setKeyStore(snapshot: Readonly<KeyStore.Snapshot>): Promise<void>;
-  deleteKeyStore(hash: KeyStore.Snapshot['hash']): Promise<KeyStore.Snapshot>;
+  hashes(): AsyncIterator<KeyStore.Snapshot['hash']>;
+  hasHDKeyStore(hash: KeyStore.Snapshot['hash']): Promise<boolean>;
+  getHDKeyStore(hash: KeyStore.Snapshot['hash']): Promise<KeyStore.Snapshot | undefined>;
+  setHDKeyStore(hash: KeyStore.Snapshot['hash'], snapshot: Readonly<KeyStore.Snapshot>): Promise<void>;
+  deleteHDKeyStore(hash: KeyStore.Snapshot['hash']): Promise<KeyStore.Snapshot>;
 }
 
 export enum KeyStoreSource {
@@ -88,7 +90,6 @@ export enum KeyStoreSource {
 export namespace KeyStore {
   interface PayloadMapping {
     keystore: EncryptedJSON;
-    arweave: never; // TODO: future
   }
 
   export interface Snapshot<T extends keyof PayloadMapping = keyof PayloadMapping> {
@@ -109,15 +110,6 @@ export namespace KeyStore {
     remark?: string;
 
     passwordHint: string;
-  }
-
-  export interface EncryptedJSON {
-    cipher: string;
-    cipherparams: unknown;
-    ciphertext: string;
-    kdf: string;
-    kdfparams: unknown;
-    mac: string;
   }
 }
 
@@ -162,7 +154,7 @@ export namespace ImportKeyStoreParams {
 
   export interface JSON extends Generanl {
     type: KeyStoreSource.EncryptedJSON;
-    payload: KeyStore.EncryptedJSON;
+    payload: EncryptedJSON;
   }
 
   export interface PrivateKey extends Generanl {
