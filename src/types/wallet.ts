@@ -1,5 +1,5 @@
 import { KeyStore } from 'crypto-suite/types';
-import { KeyStoreSnapshot, KeyStoreSource } from './keystore';
+import { KeyPair, KeyStoreSnapshot, KeyStoreSource } from './keystore';
 
 export enum UnlockKeyType {
   Password = 'Password',
@@ -12,12 +12,14 @@ export enum ChainType {
   Substrate = 'Substrate',
 }
 
+//#region create key store params
+
 export type CreateKeyStoreParams = CreateKeyStoreParams.Type;
 
 export namespace CreateKeyStoreParams {
   export type Type = HDKeyStore;
 
-  export interface HDKeyStore {
+  interface HDKeyStore {
     type: 'hd';
     source: KeyStoreSource.Mnemonic;
     name?: string;
@@ -27,12 +29,16 @@ export namespace CreateKeyStoreParams {
 }
 
 export interface CreateKeyStoreResult {
-  type: 'hd';
+  keyHash: string;
   name: string;
   source: KeyStoreSource;
-  pairs: unknown[];
+  pairs: KeyPair[];
   createdAt: Date;
 }
+
+//#endregion
+
+//#region import key store params
 
 export type ImportKeyStoreParams = ImportKeyStoreParams.Type;
 
@@ -47,21 +53,25 @@ export namespace ImportKeyStoreParams {
     passwordHint?: string;
   }
 
-  export interface Mnemonic extends Generanl {
+  interface Mnemonic extends Generanl {
     source: KeyStoreSource.Mnemonic;
     mnemonic: string;
   }
 
-  export interface JSON extends Generanl {
+  interface JSON extends Generanl {
     source: KeyStoreSource.EncryptedJSON;
     payload: KeyStore;
   }
 
-  export interface PrivateKey extends Generanl {
+  interface PrivateKey extends Generanl {
     source: KeyStoreSource.PrivateKey;
     privateKey: string;
   }
 }
+
+//#endregion
+
+//#region export key store params
 
 export type ExportKeyStoreParams = ExportKeyStoreParams.Type;
 
@@ -74,17 +84,21 @@ export namespace ExportKeyStoreParams {
     password: string;
   }
 
-  export interface Mnemonic extends Generanl {
+  interface Mnemonic extends Generanl {
     source: KeyStoreSource.Mnemonic;
     mnemonic: string;
   }
 
-  export interface PrivateKey extends Generanl {
+  interface PrivateKey extends Generanl {
     source: KeyStoreSource.PrivateKey;
     chainType: ChainType;
     network: string;
   }
 }
+
+//#endregion
+
+//#region sign params
 
 export type SignParams = SignParams.Type;
 
@@ -97,3 +111,5 @@ export namespace SignParams {
     input: unknown;
   }
 }
+
+//#endregion

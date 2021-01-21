@@ -19,8 +19,16 @@ export enum KeyStoreSource {
 
 export type KeyStoreSnapshot = KeyStoreSnapshot.Type;
 
+export type KeyStoreSnapshotMarked = KeyStoreSnapshot.Masked;
+
 namespace KeyStoreSnapshot {
   export type Type = Snapshot & { type: 'hd'; crypto: KeyStore };
+
+  export interface Masked extends Metadata {
+    version: Snapshot['version'];
+    type: Snapshot['type'];
+    hash: Snapshot['hash'];
+  }
 
   interface Snapshot {
     version: 1;

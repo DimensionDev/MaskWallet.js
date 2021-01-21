@@ -1,13 +1,15 @@
-import { StorageRegistry } from './types';
-import { HDWallet } from './keystore/wallet';
-import { HDKeyStoreManager } from './key-store-manager';
+import { assertPlainObject } from 'asserts';
+import { HDKeyStoreManager } from 'keystore/key-store-manager';
+import { HDWallet } from 'keystore/wallet';
+import { StorageRegistry } from 'types';
 
-export { getCoinRegistry } from './coin-registry';
+export { getCoinRegistry } from 'coin-registry';
 
 let wallet: HDWallet | undefined;
 let keyStore: HDKeyStoreManager | undefined;
 
 export function setStorageRegistry(registry: StorageRegistry): void {
+  assertPlainObject(registry);
   if (wallet !== undefined || keyStore !== undefined) {
     throw new TypeError('Not allowed');
   }

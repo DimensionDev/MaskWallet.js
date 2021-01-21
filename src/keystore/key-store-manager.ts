@@ -1,7 +1,16 @@
 import { assertPlainObject, assertStorageRegistry } from 'asserts';
 import { WalletError } from 'errors';
 import { HDKeyStore } from 'keystore';
-import { CreateKeyStoreParams, CreateKeyStoreResult, ExportKeyStoreParams, ImportKeyStoreParams, KeyStoreSource, StorageRegistry, UnlockKeyType } from 'types';
+import {
+  CreateKeyStoreParams,
+  CreateKeyStoreResult,
+  ExportKeyStoreParams,
+  ImportKeyStoreParams,
+  KeyStoreSnapshotMarked,
+  KeyStoreSource,
+  StorageRegistry,
+  UnlockKeyType,
+} from 'types';
 
 export class HDKeyStoreManager {
   #registry: Readonly<StorageRegistry>;
@@ -43,7 +52,26 @@ export class HDKeyStoreManager {
     }
   }
 
+  async *getAllKeyStories() {
+    for await (const hash of this.#registry.hashes()) {
+      const store = await this.#registry.getHDKeyStore(hash);
+      if (store === undefined) {
+        continue;
+      }
+      yield Object.freeze<KeyStoreSnapshotMarked>({
+        version: store.version,
+        type: store.type,
+        hash: store.hash,
+        name: store.meta.name,
+        source: store.meta.source,
+        timestamp: store.meta.timestamp,
+        remark: store.meta.remark,
+        passwordHint: store.meta.passwordHint,
+      });
+    }
+  }
+
   get [Symbol.toStringTag]() {
-    return 'KeyStoreManager';
+    return 'HDKeyStoreManager';
   }
 }
