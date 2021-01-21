@@ -59,13 +59,13 @@ export namespace ImportKeyStoreParams {
   }
 
   interface JSON extends Generanl {
-    source: KeyStoreSource.EncryptedJSON;
-    payload: KeyStore;
+    source: KeyStoreSource.KeyStore;
+    store: KeyStore;
   }
 
   interface PrivateKey extends Generanl {
     source: KeyStoreSource.PrivateKey;
-    privateKey: string;
+    key: string;
   }
 }
 

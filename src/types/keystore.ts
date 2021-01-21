@@ -14,7 +14,7 @@ export interface KeyPair {
 export enum KeyStoreSource {
   Mnemonic = 'Mnemonic',
   PrivateKey = 'PrivateKey',
-  EncryptedJSON = 'EncryptedJSON',
+  KeyStore = 'KeyStore',
 }
 
 export type KeyStoreSnapshot = KeyStoreSnapshot.Type;
