@@ -1,3 +1,4 @@
+import { CoinInfo } from 'coin-registry';
 import { KeyStoreSnapshot, StorageRegistry } from './types';
 
 export function assertFrozen<T>(input: T, message = '.input'): asserts input is Readonly<NonNullable<T>> {

@@ -10,10 +10,10 @@ export function getCoinRegistry() {
 
 export type CoinInfo = Readonly<CoinInfo.Type>;
 
-export namespace CoinInfo {
+namespace CoinInfo {
   export type Type = CurveCoin | RSACoin;
 
-  export interface CurveCoin {
+  interface CurveCoin {
     type: 'curve';
     coin: string;
     derivationPath: string;
@@ -22,11 +22,11 @@ export namespace CoinInfo {
     segWit?: string;
   }
 
-  export type KeyType = 'RSA-4096';
-  export type EncryptionAlgorithm = 'AES-256-CBC';
-  export type HashAlgorithm = 'SHA-256' | 'SHA-384';
+  type KeyType = 'RSA-4096';
+  type EncryptionAlgorithm = 'AES-256-CBC';
+  type HashAlgorithm = 'SHA-256' | 'SHA-384';
 
-  export interface RSACoin {
+  interface RSACoin {
     type: 'rsa';
     coin: string;
     suite: [KeyType, EncryptionAlgorithm, HashAlgorithm];

@@ -1,11 +1,3 @@
-export interface CoinInfo {
-  coin: string;
-  derivationPath: string;
-  curve: CurveType;
-  network?: string;
-  segWit?: string;
-}
-
 export enum CurveType {
   SECP256k1 = 'SECP256k1',
   ED25519 = 'ED25519',
