@@ -10,7 +10,7 @@ import {
   StorageRegistry,
   SystemKind,
   UnlockKeyType,
-} from 'keystore/types';
+} from 'types';
 
 export class HDKeyStoreManager {
   #storage: Readonly<StorageRegistry>;

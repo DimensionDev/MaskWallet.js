@@ -1,4 +1,4 @@
-import { KeyStore, StorageRegistry } from './keystore/types';
+import { KeyStore, StorageRegistry } from './types';
 
 export function assertFrozen<T>(input: T, message = '.input'): asserts input is Readonly<NonNullable<T>> {
   if (!Object.isFrozen(input)) {

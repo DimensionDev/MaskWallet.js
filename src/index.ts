@@ -1,4 +1,4 @@
-import { StorageRegistry } from './keystore/types';
+import { StorageRegistry } from './types';
 import { HDWallet } from './keystore/wallet';
 import { HDKeyStoreManager } from './key-store-manager';
 

@@ -1,6 +1,6 @@
 import { assertFrozen, assertPlainObject, assertSnapshot, assertStorageRegistry } from 'asserts';
 import { WalletError } from 'errors';
-import { CoinInfo, KeyStoreSnapshot, KeyType, SignParams, StorageRegistry } from 'keystore/types';
+import { CoinInfo, KeyStoreSnapshot, KeyType, SignParams, StorageRegistry } from 'types';
 
 export class HDWallet {
   #storage: Readonly<StorageRegistry>;

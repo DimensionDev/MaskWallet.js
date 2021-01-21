@@ -1,6 +1,6 @@
 import { assertPlainObject, assertSnapshot } from 'asserts';
 import { WalletError } from 'errors';
-import { CoinInfo, CurveType, ImportKeyStoreParams, KeyStoreSnapshot, KeyType, UnlockKeyType, KeyPair } from 'keystore/types';
+import { CoinInfo, CurveType, ImportKeyStoreParams, KeyStoreSnapshot, KeyType, UnlockKeyType, KeyPair } from 'types';
 import { KeyStore } from 'crypto-suite/types';
 
 export class HDKeyStore {

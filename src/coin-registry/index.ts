@@ -1,4 +1,4 @@
-import { CurveType } from 'keystore/types';
+import { CurveType } from 'types';
 import registry from './registry.json';
 
 registry.forEach(Object.freeze);

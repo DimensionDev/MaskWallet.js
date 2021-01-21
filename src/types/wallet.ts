@@ -1,83 +1,15 @@
 import { KeyStore } from 'crypto-suite/types';
-
-export interface CoinInfo {
-  coin: string;
-  derivationPath: string;
-  curve: CurveType;
-  network?: string;
-  segWit?: string;
-}
-
-export enum ChainType {
-  Ethereum = 'Ethereum',
-  BitcoinCash = 'BitcoinCash',
-  Substrate = 'Substrate',
-}
-
-export enum CurveType {
-  SECP256k1 = 'SECP256k1',
-  ED25519 = 'ED25519',
-  ED25519Blake2bNano = 'ED25519Blake2bNano',
-  SubSr25519 = 'SubSr25519',
-  Curve25519 = 'Curve25519',
-  NIST256p1 = 'NIST256p1',
-}
-
-export enum KeyType {
-  Mnemonic = 'Mnemonic',
-  PrivateKey = 'PrivateKey',
-  PublicKey = 'PublicKey',
-}
-
-export interface KeyPair {
-  coin: string;
-  address: string;
-  derivationPath: string;
-  curve: CurveType;
-  network: string;
-  segWit?: string;
-  extPubKey?: string; // extended public key
-}
+import { KeyStoreSnapshot, KeyStoreSource } from './keystore';
 
 export enum UnlockKeyType {
   Password = 'Password',
   DeriverdKey = 'DeriverdKey',
 }
 
-export interface StorageRegistry {
-  hashes(): AsyncIterator<KeyStoreSnapshot['hash']>;
-  hasHDKeyStore(hash: KeyStoreSnapshot['hash']): Promise<boolean>;
-  getHDKeyStore(hash: KeyStoreSnapshot['hash']): Promise<KeyStoreSnapshot | undefined>;
-  setHDKeyStore(hash: KeyStoreSnapshot['hash'], snapshot: Readonly<KeyStoreSnapshot>): Promise<void>;
-  deleteHDKeyStore(hash: KeyStoreSnapshot['hash']): Promise<KeyStoreSnapshot>;
-}
-
-export enum KeyStoreSource {
-  Mnemonic = 'Mnemonic',
-  PrivateKey = 'PrivateKey',
-  EncryptedJSON = 'EncryptedJSON',
-}
-
-export type KeyStoreSnapshot = KeyStoreSnapshot.Type;
-
-namespace KeyStoreSnapshot {
-  export type Type = Snapshot & { type: 'hd'; crypto: KeyStore };
-
-  interface Snapshot {
-    version: 1;
-    type: 'hd';
-    hash: string;
-    pairs: ReadonlyArray<KeyPair>;
-    meta: Readonly<Metadata>;
-  }
-
-  interface Metadata {
-    name: string;
-    source: KeyStoreSource;
-    timestamp: Date;
-    remark?: string;
-    passwordHint?: string;
-  }
+export enum ChainType {
+  Ethereum = 'Ethereum',
+  BitcoinCash = 'BitcoinCash',
+  Substrate = 'Substrate',
 }
 
 export type CreateKeyStoreParams = CreateKeyStoreParams.Type;
