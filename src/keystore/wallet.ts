@@ -16,13 +16,13 @@ export class HDWallet {
   async deriveKey(hash: KeyStoreSnapshot['hash'], info: Readonly<CoinInfo>): Promise<boolean> {
     assertFrozen(info, '`info` parameter');
     assertPlainObject(info, '`info` parameter');
-    const snapshot = await this.#registry.getHDKeyStore(hash);
+    const snapshot = await this.#registry.getKeyStore(hash);
     assertSnapshot(snapshot, '`snapshot`');
     throw new WalletError('not implemented');
   }
 
   async verify(hash: KeyStoreSnapshot['hash'], password: string): Promise<boolean> {
-    const snapshot = await this.#registry.getHDKeyStore(hash);
+    const snapshot = await this.#registry.getKeyStore(hash);
     assertSnapshot(snapshot, 'snapshot');
     throw new WalletError('not implemented');
   }

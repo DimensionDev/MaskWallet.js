@@ -6,6 +6,7 @@ import {
   CreateKeyStoreResult,
   ExportKeyStoreParams,
   ImportKeyStoreParams,
+  KeyStoreSnapshot,
   KeyStoreSnapshotMarked,
   KeyStoreSource,
   StorageRegistry,
@@ -28,21 +29,18 @@ export class HDKeyStoreManager {
 
   async import(params: ImportKeyStoreParams) {
     assertPlainObject(params, '`params` parameter');
-    const snapshot = await HDKeyStore.create(params);
-    const exists = await this.#registry.hasHDKeyStore(snapshot.keyHash);
-    if (exists && !params.overwrite) {
-      throw new WalletError('This key hash already exists.');
+    const snapshot = await HDKeyStore.import(params);
+    if (!params.overwrite) {
+      await this.assertHasKeyStore(snapshot.keyHash);
     }
-    await this.#registry.setHDKeyStore(snapshot.keyHash, snapshot.toJSON());
+    await this.#registry.setKeyStore(snapshot.keyHash, snapshot.toJSON());
   }
 
   async export(params: ExportKeyStoreParams) {
     assertPlainObject(params, '`params` parameter');
-    const snapshot = await this.#registry.getHDKeyStore(params.hash);
-    if (snapshot === undefined) {
-      throw new WalletError('This key hash not found.');
-    }
-    const store = new HDKeyStore(snapshot);
+    await this.assertHasKeyStore(params.hash);
+    const snapshot = await this.#registry.getKeyStore(params.hash);
+    const store = new HDKeyStore(snapshot!);
     if (params.source === KeyStoreSource.Mnemonic) {
       await store.unlock(UnlockKeyType.DeriverdKey, params.mnemonic);
       return store.exportMnemonic();
@@ -52,10 +50,19 @@ export class HDKeyStoreManager {
     }
   }
 
-  async *getAllKeyStories() {
+  async delete(hash: KeyStoreSnapshot['hash']) {
+    await this.assertHasKeyStore(hash);
+    return this.#registry.deleteKeyStore(hash);
+  }
+
+  getAllKeyStories() {
+    return this[Symbol.asyncIterator]();
+  }
+
+  async *[Symbol.asyncIterator]() {
     for await (const hash of this.#registry.hashes()) {
-      const store = await this.#registry.getHDKeyStore(hash);
-      if (store === undefined) {
+      const store = await this.#registry.getKeyStore(hash);
+      if (store === undefined || store.type !== 'hd') {
         continue;
       }
       yield Object.freeze<KeyStoreSnapshotMarked>({
@@ -68,6 +75,22 @@ export class HDKeyStoreManager {
         remark: store.meta.remark,
         passwordHint: store.meta.passwordHint,
       });
+    }
+  }
+
+  async destroy() {
+    for await (const hash of this.#registry.hashes()) {
+      const store = await this.#registry.getKeyStore(hash);
+      if (store === undefined || store.type !== 'hd') {
+        continue;
+      }
+      await this.#registry.deleteKeyStore(hash);
+    }
+  }
+
+  private async assertHasKeyStore(hash: KeyStoreSnapshot['hash']) {
+    if (!(await this.#registry.hasKeyStore(hash))) {
+      throw new WalletError(`The ${hash} key store not found.`);
     }
   }
 

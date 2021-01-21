@@ -24,7 +24,7 @@ export function getHDWalletInstance() {
   return wallet;
 }
 
-export function getHDKeyStoreManager() {
+export async function getKeyStoreManager() {
   if (keyStore === undefined) {
     throw new TypeError('Please provide an `StorageRegistry`.');
   }

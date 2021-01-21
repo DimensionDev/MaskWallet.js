@@ -2,8 +2,8 @@ import { KeyStoreSnapshot } from './keystore';
 
 export interface StorageRegistry {
   hashes(): AsyncGenerator<KeyStoreSnapshot['hash']>;
-  hasHDKeyStore(hash: KeyStoreSnapshot['hash']): Promise<boolean>;
-  getHDKeyStore(hash: KeyStoreSnapshot['hash']): Promise<Readonly<KeyStoreSnapshot> | undefined>;
-  setHDKeyStore(hash: KeyStoreSnapshot['hash'], snapshot: Readonly<KeyStoreSnapshot>): Promise<void>;
-  deleteHDKeyStore(hash: KeyStoreSnapshot['hash']): Promise<void>;
+  hasKeyStore(hash: KeyStoreSnapshot['hash']): Promise<boolean>;
+  getKeyStore(hash: KeyStoreSnapshot['hash']): Promise<Readonly<KeyStoreSnapshot> | undefined>;
+  setKeyStore(hash: KeyStoreSnapshot['hash'], snapshot: Readonly<KeyStoreSnapshot>): Promise<void>;
+  deleteKeyStore(hash: KeyStoreSnapshot['hash']): Promise<void>;
 }

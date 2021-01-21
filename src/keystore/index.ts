@@ -12,7 +12,7 @@ export class HDKeyStore {
   #meta: KeyStoreSnapshot['meta'];
   #pairs: KeyStoreSnapshot['pairs'];
 
-  static async create(params: ImportKeyStoreParams): Promise<HDKeyStore> {
+  static async import(params: ImportKeyStoreParams): Promise<HDKeyStore> {
     assertPlainObject(params, '`params` parameter');
     if (params.type !== 'hd') {
       throw new Error('`.kind` must be is HDKeyStore');
