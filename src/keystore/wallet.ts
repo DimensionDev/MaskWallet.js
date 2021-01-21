@@ -1,6 +1,6 @@
 import { assertFrozen, assertPlainObject, assertSnapshot, assertStorageRegistry } from 'asserts';
 import { WalletError } from 'errors';
-import { CoinInfo, KeyStore, KeyType, SignParams, StorageRegistry } from 'keystore/types';
+import { CoinInfo, KeyStoreSnapshot, KeyType, SignParams, StorageRegistry } from 'keystore/types';
 
 export class HDWallet {
   #storage: Readonly<StorageRegistry>;
@@ -12,7 +12,7 @@ export class HDWallet {
   }
 
   // #region cryptographic operations
-  async deriveKey(hash: KeyStore.Snapshot['hash'], info: Readonly<CoinInfo>): Promise<boolean> {
+  async deriveKey(hash: KeyStoreSnapshot['hash'], info: Readonly<CoinInfo>): Promise<boolean> {
     assertFrozen(info, '`info` parameter');
     assertPlainObject(info, '`info` parameter');
     const snapshot = await this.#storage.getHDKeyStore(hash);
@@ -20,7 +20,7 @@ export class HDWallet {
     throw new WalletError('not implemented');
   }
 
-  async verify(hash: KeyStore.Snapshot['hash'], password: string): Promise<boolean> {
+  async verify(hash: KeyStoreSnapshot['hash'], password: string): Promise<boolean> {
     const snapshot = await this.#storage.getHDKeyStore(hash);
     assertSnapshot(snapshot, 'snapshot');
     throw new WalletError('not implemented');

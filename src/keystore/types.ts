@@ -1,4 +1,4 @@
-import { KeyStore as EncryptedJSON } from '../crypto-suite/types';
+import { KeyStore } from 'crypto-suite/types';
 
 export interface CoinInfo {
   coin: string;
@@ -6,11 +6,6 @@ export interface CoinInfo {
   curve: CurveType;
   network?: string;
   segWit?: string;
-}
-
-export enum SystemKind {
-  HDKeyStore = 'HDKeyStore',
-  Arweave = 'Arweave',
 }
 
 export enum ChainType {
@@ -40,29 +35,6 @@ export enum KeyType {
   PublicKey = 'PublicKey',
 }
 
-export interface TypedKeyStore {
-  // locker
-  isLocked(): boolean;
-  lock(): void;
-  unlock(type: UnlockKeyType.Password, password: string): Promise<boolean>;
-  unlock(type: UnlockKeyType.DeriverdKey, key: string): Promise<boolean>;
-  // finder
-  find(type: KeyType.PublicKey, symbol: string, address: string, path?: string): Promise<unknown>;
-  find(type: KeyType.PrivateKey, symbol: string, address: string, path?: string): Promise<unknown>;
-  // exporter
-  exportMnemonic(): Promise<string>;
-  exportPrivateKey(coin: string, mainAddress: string, path?: string): Promise<string>;
-  // derive
-  deriveKey(info: CoinInfo): Promise<KeyPair>;
-  // storage
-  toJSON(): Readonly<KeyStore.Snapshot>;
-}
-
-export enum UnlockKeyType {
-  Password = 'Password',
-  DeriverdKey = 'DeriverdKey',
-}
-
 export interface KeyPair {
   coin: string;
   address: string;
@@ -70,15 +42,20 @@ export interface KeyPair {
   curve: CurveType;
   network: string;
   segWit?: string;
-  // extraPublicKey: string;
+  extPubKey?: string; // extended public key
+}
+
+export enum UnlockKeyType {
+  Password = 'Password',
+  DeriverdKey = 'DeriverdKey',
 }
 
 export interface StorageRegistry {
-  hashes(): AsyncIterator<KeyStore.Snapshot['hash']>;
-  hasHDKeyStore(hash: KeyStore.Snapshot['hash']): Promise<boolean>;
-  getHDKeyStore(hash: KeyStore.Snapshot['hash']): Promise<KeyStore.Snapshot | undefined>;
-  setHDKeyStore(hash: KeyStore.Snapshot['hash'], snapshot: Readonly<KeyStore.Snapshot>): Promise<void>;
-  deleteHDKeyStore(hash: KeyStore.Snapshot['hash']): Promise<KeyStore.Snapshot>;
+  hashes(): AsyncIterator<KeyStoreSnapshot['hash']>;
+  hasHDKeyStore(hash: KeyStoreSnapshot['hash']): Promise<boolean>;
+  getHDKeyStore(hash: KeyStoreSnapshot['hash']): Promise<KeyStoreSnapshot | undefined>;
+  setHDKeyStore(hash: KeyStoreSnapshot['hash'], snapshot: Readonly<KeyStoreSnapshot>): Promise<void>;
+  deleteHDKeyStore(hash: KeyStoreSnapshot['hash']): Promise<KeyStoreSnapshot>;
 }
 
 export enum KeyStoreSource {
@@ -87,29 +64,25 @@ export enum KeyStoreSource {
   EncryptedJSON = 'EncryptedJSON',
 }
 
-export namespace KeyStore {
-  interface PayloadMapping {
-    keystore: EncryptedJSON;
-  }
+export type KeyStoreSnapshot = KeyStoreSnapshot.Type;
 
-  export interface Snapshot<T extends keyof PayloadMapping = keyof PayloadMapping> {
+namespace KeyStoreSnapshot {
+  export type Type = Snapshot & { type: 'hd'; crypto: KeyStore };
+
+  interface Snapshot {
     version: 1;
-
+    type: 'hd';
     hash: string;
-
-    format: T;
-    payload: Readonly<PayloadMapping[T]>;
-
-    metadata: Metadata;
+    pairs: ReadonlyArray<KeyPair>;
+    meta: Readonly<Metadata>;
   }
 
-  export interface Metadata {
+  interface Metadata {
     name: string;
     source: KeyStoreSource;
     timestamp: Date;
     remark?: string;
-
-    passwordHint: string;
+    passwordHint?: string;
   }
 }
 
@@ -119,7 +92,8 @@ export namespace CreateKeyStoreParams {
   export type Type = HDKeyStore;
 
   export interface HDKeyStore {
-    type: KeyStoreSource.Mnemonic;
+    type: 'hd';
+    source: KeyStoreSource.Mnemonic;
     name?: string;
     password: string;
     passwordHint?: string;
@@ -127,7 +101,7 @@ export namespace CreateKeyStoreParams {
 }
 
 export interface CreateKeyStoreResult {
-  kind: SystemKind.HDKeyStore;
+  type: 'hd';
   name: string;
   source: KeyStoreSource;
   pairs: unknown[];
@@ -140,7 +114,7 @@ export namespace ImportKeyStoreParams {
   export type Type = Mnemonic | JSON | PrivateKey;
 
   interface Generanl {
-    kind: SystemKind.HDKeyStore;
+    type: 'hd';
     name: string;
     overwrite: boolean;
     password: string;
@@ -148,17 +122,17 @@ export namespace ImportKeyStoreParams {
   }
 
   export interface Mnemonic extends Generanl {
-    type: KeyStoreSource.Mnemonic;
+    source: KeyStoreSource.Mnemonic;
     mnemonic: string;
   }
 
   export interface JSON extends Generanl {
-    type: KeyStoreSource.EncryptedJSON;
-    payload: EncryptedJSON;
+    source: KeyStoreSource.EncryptedJSON;
+    payload: KeyStore;
   }
 
   export interface PrivateKey extends Generanl {
-    type: KeyStoreSource.PrivateKey;
+    source: KeyStoreSource.PrivateKey;
     privateKey: string;
   }
 }
@@ -169,18 +143,18 @@ export namespace ExportKeyStoreParams {
   export type Type = Mnemonic | PrivateKey;
 
   interface Generanl {
-    kind: SystemKind.HDKeyStore;
-    hash: KeyStore.Snapshot['hash'];
+    type: 'hd';
+    hash: KeyStoreSnapshot['hash'];
     password: string;
   }
 
   export interface Mnemonic extends Generanl {
-    type: KeyStoreSource.Mnemonic;
+    source: KeyStoreSource.Mnemonic;
     mnemonic: string;
   }
 
   export interface PrivateKey extends Generanl {
-    type: KeyStoreSource.PrivateKey;
+    source: KeyStoreSource.PrivateKey;
     chainType: ChainType;
     network: string;
   }
@@ -190,7 +164,7 @@ export type SignParams = SignParams.Type;
 
 export namespace SignParams {
   export interface Type {
-    hash: KeyStore.Snapshot['hash'];
+    hash: KeyStoreSnapshot['hash'];
     chainType: ChainType;
     address: string;
     unlockKeyType: UnlockKeyType;

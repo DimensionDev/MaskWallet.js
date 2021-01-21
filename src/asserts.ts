@@ -13,7 +13,7 @@ export function assertPlainObject<T>(input: T, message = '.input'): asserts inpu
   }
 }
 
-export function assertSnapshot(snapshot: KeyStore.Snapshot | undefined, message = '.snapshot') {
+export function assertSnapshot(snapshot: KeyStoreSnapshot | undefined, message = '.snapshot') {
   assertFrozen(snapshot, message);
   assertPlainObject(snapshot, message);
   assertPlainObject(snapshot.payload, message);

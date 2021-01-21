@@ -1,27 +1,32 @@
 import { assertPlainObject, assertSnapshot } from 'asserts';
 import { WalletError } from 'errors';
-import { CoinInfo, ImportKeyStoreParams, KeyPair, KeyStore, KeyType, TypedKeyStore, UnlockKeyType } from 'keystore/types';
+import { CoinInfo, CurveType, ImportKeyStoreParams, KeyStoreSnapshot, KeyType, UnlockKeyType, KeyPair } from 'keystore/types';
+import { KeyStore } from 'crypto-suite/types';
 
-export class HDKeyStore implements TypedKeyStore {
-  #snapshot: Readonly<KeyStore.Snapshot>;
+export class HDKeyStore {
   #store: UnlockedStore | null = null;
+  #hash: string;
+  #crypto: KeyStore;
+  #meta: KeyStoreSnapshot['meta'];
+  #pairs: KeyStoreSnapshot['pairs'] = [];
 
-  static create(params: ImportKeyStoreParams): Promise<HDKeyStore> {
+  static async create(params: ImportKeyStoreParams): Promise<HDKeyStore> {
     assertPlainObject(params, '`params` parameter');
+    if (params.type !== 'hd') {
+      throw new Error('`.kind` must be is HDKeyStore');
+    }
     throw new WalletError('not implemented');
   }
 
-  constructor(snapshot: Readonly<KeyStore.Snapshot>) {
+  private constructor(snapshot: Readonly<KeyStoreSnapshot>) {
     assertSnapshot(snapshot);
-    this.#snapshot = Object.freeze<KeyStore.Snapshot>({
-      version: snapshot.version,
-      hash: snapshot.hash,
-
-      format: snapshot.format,
-      payload: Object.freeze({ ...snapshot.payload }),
-
-      metadata: snapshot.metadata,
-    });
+    if (snapshot.type !== 'hd') {
+      throw new Error('unsupported snapshot type');
+    }
+    this.#hash = snapshot.hash;
+    this.#crypto = { ...snapshot.crypto };
+    this.#meta = { ...snapshot.meta };
+    this.#pairs = Array.from(snapshot.pairs);
   }
 
   // #region locker
@@ -47,7 +52,7 @@ export class HDKeyStore implements TypedKeyStore {
   // #endregion
 
   async find(type: KeyType, symbol: string, address: string, path?: string): Promise<unknown> {
-    throw new WalletError('not implemented');
+    return;
   }
 
   async exportMnemonic(): Promise<string> {
@@ -65,26 +70,54 @@ export class HDKeyStore implements TypedKeyStore {
     throw new WalletError('not implemented');
   }
 
-  sign(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
+  getKeyPair(symbol: string, address: string): Readonly<KeyPair | undefined> {
+    const pair = this.#pairs.find((pair) => pair.coin === symbol && pair.address === address);
+    return pair ? cloneKeyPair(pair) : undefined;
+  }
+
+  getAllKeyPairs(): ReadonlyArray<KeyPair> {
+    return Object.freeze(Array.from(this.#pairs).map(cloneKeyPair));
+  }
+
+  async sign(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
     this.assertUnlocked();
     throw new WalletError('not implemented');
   }
 
-  signRecoverableHash(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
+  async signRecoverableHash(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
     this.assertUnlocked();
     throw new WalletError('not implemented');
   }
 
   get keyHash() {
-    return this.#snapshot.hash;
+    return this.#hash;
   }
 
-  toJSON(): Readonly<KeyStore.Snapshot> {
-    return this.#snapshot;
+  toJSON(): Readonly<KeyStoreSnapshot> {
+    return Object.freeze({
+      version: 1,
+      type: 'hd',
+      hash: this.#hash,
+      pairs: this.#pairs,
+      crypto: this.#crypto,
+      meta: this.#meta,
+    });
   }
 }
 
 interface UnlockedStore {
   type: UnlockKeyType;
   value: string;
+}
+
+function cloneKeyPair(pair: KeyPair): Readonly<KeyPair> {
+  return Object.freeze<KeyPair>({
+    coin: pair.coin,
+    address: pair.address,
+    derivationPath: pair.derivationPath,
+    curve: pair.curve,
+    network: pair.network,
+    segWit: pair.segWit,
+    extPubKey: pair.extPubKey,
+  });
 }
