@@ -43,7 +43,7 @@ export interface CreateKeyStoreResult {
 export type ImportKeyStoreParams = ImportKeyStoreParams.Type;
 
 export namespace ImportKeyStoreParams {
-  export type Type = Mnemonic | JSON | PrivateKey;
+  export type Type = Mnemonic | KeyStoreJSON | PrivateKey;
 
   interface Generanl {
     type: 'hd';
@@ -58,7 +58,7 @@ export namespace ImportKeyStoreParams {
     mnemonic: string;
   }
 
-  interface JSON extends Generanl {
+  interface KeyStoreJSON extends Generanl {
     source: KeyStoreSource.KeyStore;
     store: KeyStore;
   }
