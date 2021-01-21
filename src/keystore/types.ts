@@ -15,17 +15,11 @@ export enum ChainType {
 }
 
 export enum CurveType {
-  /** secp256k1 */
   SECP256k1 = 'SECP256k1',
-  /** ed25519 */
   ED25519 = 'ED25519',
-  /** ed25519-blake2b-nano */
   ED25519Blake2bNano = 'ED25519Blake2bNano',
-  /** SubSr25519 */
   SubSr25519 = 'SubSr25519',
-  /** curve25519 */
   Curve25519 = 'Curve25519',
-  /** nist256p1 */
   NIST256p1 = 'NIST256p1',
 }
 
