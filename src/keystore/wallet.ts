@@ -1,13 +1,14 @@
 import { assertFrozen, assertPlainObject, assertSnapshot, assertStorageRegistry } from 'asserts';
+import { CoinInfo } from 'coin-registry';
 import { WalletError } from 'errors';
-import { CoinInfo, KeyStoreSnapshot, KeyType, SignParams, StorageRegistry } from 'types';
+import { KeyStoreSnapshot, KeyType, SignParams, StorageRegistry } from 'types';
 
 export class HDWallet {
-  #storage: Readonly<StorageRegistry>;
+  #registry: Readonly<StorageRegistry>;
 
-  constructor(storage: StorageRegistry) {
-    assertStorageRegistry(storage, '`storage` parameter');
-    this.#storage = storage;
+  constructor(registry: StorageRegistry) {
+    assertStorageRegistry(registry, '`registry` parameter');
+    this.#registry = registry;
     Object.freeze(this);
   }
 
@@ -15,13 +16,13 @@ export class HDWallet {
   async deriveKey(hash: KeyStoreSnapshot['hash'], info: Readonly<CoinInfo>): Promise<boolean> {
     assertFrozen(info, '`info` parameter');
     assertPlainObject(info, '`info` parameter');
-    const snapshot = await this.#storage.getHDKeyStore(hash);
+    const snapshot = await this.#registry.getHDKeyStore(hash);
     assertSnapshot(snapshot, '`snapshot`');
     throw new WalletError('not implemented');
   }
 
   async verify(hash: KeyStoreSnapshot['hash'], password: string): Promise<boolean> {
-    const snapshot = await this.#storage.getHDKeyStore(hash);
+    const snapshot = await this.#registry.getHDKeyStore(hash);
     assertSnapshot(snapshot, 'snapshot');
     throw new WalletError('not implemented');
   }

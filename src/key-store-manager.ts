@@ -4,11 +4,11 @@ import { HDKeyStore } from 'keystore';
 import { CreateKeyStoreParams, CreateKeyStoreResult, ExportKeyStoreParams, ImportKeyStoreParams, KeyStoreSource, StorageRegistry, UnlockKeyType } from 'types';
 
 export class HDKeyStoreManager {
-  #storage: Readonly<StorageRegistry>;
+  #registry: Readonly<StorageRegistry>;
 
-  constructor(storage: StorageRegistry) {
-    assertStorageRegistry(storage);
-    this.#storage = storage;
+  constructor(registry: StorageRegistry) {
+    assertStorageRegistry(registry);
+    this.#registry = registry;
     Object.freeze(this);
   }
 
@@ -20,16 +20,16 @@ export class HDKeyStoreManager {
   async import(params: ImportKeyStoreParams) {
     assertPlainObject(params, '`params` parameter');
     const snapshot = await HDKeyStore.create(params);
-    const exists = await this.#storage.hasHDKeyStore(snapshot.keyHash);
+    const exists = await this.#registry.hasHDKeyStore(snapshot.keyHash);
     if (exists && !params.overwrite) {
       throw new WalletError('This key hash already exists.');
     }
-    await this.#storage.setHDKeyStore(snapshot.keyHash, snapshot.toJSON());
+    await this.#registry.setHDKeyStore(snapshot.keyHash, snapshot.toJSON());
   }
 
   async export(params: ExportKeyStoreParams) {
     assertPlainObject(params, '`params` parameter');
-    const snapshot = await this.#storage.getHDKeyStore(params.hash);
+    const snapshot = await this.#registry.getHDKeyStore(params.hash);
     if (snapshot === undefined) {
       throw new WalletError('This key hash not found.');
     }
