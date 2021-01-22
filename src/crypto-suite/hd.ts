@@ -2,6 +2,9 @@ import { assertPlainObject } from 'asserts';
 import { CryptoSuiteError, KeyStore } from './types';
 import { fromHexString } from './utils';
 
+// Reference:
+//   https://github.com/ethereum/eth-keyfile
+
 export class HDCryptoSuite {
   #store: KeyStore;
 
