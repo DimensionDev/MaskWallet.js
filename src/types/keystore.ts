@@ -23,12 +23,7 @@ export type KeyStoreSnapshotMarked = KeyStoreSnapshot.Masked;
 
 namespace KeyStoreSnapshot {
   export type Type = Snapshot & { type: 'hd'; crypto: KeyStore };
-
-  export interface Masked extends Metadata {
-    version: Snapshot['version'];
-    type: Snapshot['type'];
-    hash: Snapshot['hash'];
-  }
+  export type Masked = Pick<Snapshot, 'version' | 'type' | 'hash'> & Metadata;
 
   interface Snapshot {
     version: 1;
