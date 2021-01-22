@@ -1,4 +1,4 @@
-import { assertFrozen, assertPlainObject, assertSnapshot, assertStorageRegistry } from 'asserts';
+import { assertFrozen, assertPlainObject, assertSnapshot, assertKeyStoreRegistry } from 'asserts';
 import { CoinInfo } from 'coin-registry';
 import { WalletError } from 'errors';
 import { KeyStoreSnapshot, KeyType, SignParams, KeyStoreRegistry } from 'types';
@@ -7,7 +7,7 @@ export class HDWallet {
   #registry: Readonly<KeyStoreRegistry>;
 
   constructor(registry: KeyStoreRegistry) {
-    assertStorageRegistry(registry, '`registry` parameter');
+    assertKeyStoreRegistry(registry, '`registry` parameter');
     this.#registry = registry;
     Object.freeze(this);
   }

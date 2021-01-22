@@ -1,5 +1,4 @@
-import { CoinInfo } from 'coin-registry';
-import { KeyStoreSnapshot, StorageRegistry } from './types';
+import { KeyStoreRegistry, KeyStoreSnapshot } from './types';
 
 export function assertFrozen<T>(input: T, message = '.input'): asserts input is Readonly<NonNullable<T>> {
   if (!Object.isFrozen(input)) {
@@ -22,7 +21,7 @@ export function assertSnapshot(snapshot: KeyStoreSnapshot | undefined, message =
   assertPlainObject(snapshot.pairs, message);
 }
 
-export function assertStorageRegistry(registry: StorageRegistry, message = '.registry'): asserts registry is Readonly<StorageRegistry> {
+export function assertKeyStoreRegistry(registry: KeyStoreRegistry, message = '.registry'): asserts registry is Readonly<KeyStoreRegistry> {
   if (!Object.isFrozen(registry)) {
     throw new TypeError(`${message} must be a frozen object.`);
   }

@@ -1,4 +1,4 @@
-import { assertPlainObject, assertStorageRegistry } from 'asserts';
+import { assertPlainObject, assertKeyStoreRegistry } from 'asserts';
 import { WalletError } from 'errors';
 import { HDKeyStore } from 'keystore';
 import {
@@ -17,7 +17,7 @@ export class HDKeyStoreManager {
   #registry: Readonly<KeyStoreRegistry>;
 
   constructor(registry: KeyStoreRegistry) {
-    assertStorageRegistry(registry);
+    assertKeyStoreRegistry(registry);
     this.#registry = registry;
     Object.freeze(this);
   }

@@ -30,6 +30,7 @@ export class HDKeyStore {
     this.#crypto = { ...snapshot.crypto };
     this.#meta = { ...snapshot.meta };
     this.#pairs = Array.from(snapshot.pairs).map(cloneKeyPair);
+    Object.freeze(this);
   }
 
   // #region locker
@@ -55,12 +56,14 @@ export class HDKeyStore {
   // #endregion
 
   async derive(info: CoinInfo): Promise<KeyPair> {
+    this.assertUnlocked();
     throw new WalletError('not implemented');
   }
 
   async find(type: KeyType.PublicKey, symbol: string, address: string, path?: string): Promise<PublicKey>;
   async find(type: KeyType.PrivateKey, symbol: string, address: string, path?: string): Promise<PrivateKey>;
   async find(type: KeyType, symbol: string, address: string, path?: string): Promise<CryptoKey> {
+    if (type !== KeyType.PublicKey) this.assertUnlocked();
     throw new WalletError('not implemented');
   }
 
