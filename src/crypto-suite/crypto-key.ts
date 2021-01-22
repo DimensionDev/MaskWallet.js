@@ -1,115 +1,63 @@
-import { CurveType } from 'types/basic';
+import { CurveType } from 'types';
 
 export type CryptoKey = PublicKey | PrivateKey;
 
-export abstract class PublicKey {
-  public readonly curve: CurveType;
-
-  constructor(curve: CurveType) {
-    this.curve = curve;
-  }
-
-  abstract derive(path: string): this;
-
-  abstract get deterministic(): boolean;
+export interface PublicKey {
+  readonly curve: CurveType;
+  [Symbol.toStringTag]: string;
 }
 
-export class SEPC256kPublicKey extends PublicKey {
-  constructor(data: string) {
-    super(CurveType.SECP256k1);
+export interface DeterministicPublicKey extends PublicKey {
+  derive(path: string): this;
+}
+
+export interface PrivateKey extends PublicKey {
+  readonly curve: CurveType;
+  getPublicKey(): PublicKey;
+  sign(data: Uint8Array): string;
+  signRecoverable(data: Uint8Array): string;
+  [Symbol.toStringTag]: string;
+}
+
+export interface DeterministicPrivateKey extends PrivateKey, DeterministicPublicKey {
+  getPublicKey(): DeterministicPublicKey;
+  derive(path: string): this;
+}
+
+export class SECP256k1PublicKey implements DeterministicPublicKey {
+  curve = CurveType.SECP256k1;
+  [Symbol.toStringTag] = 'SECP256k1PublicKey';
+
+  constructor() {
     Object.freeze(this);
   }
 
   derive(path: string): this {
     throw new Error('Method not implemented.');
   }
-
-  get deterministic(): boolean {
-    return false;
-  }
 }
 
-export class SubSr25519PublicKey extends PublicKey {
-  constructor(data: string) {
-    super(CurveType.SubSr25519);
+export class SECP256k1PrivateKey implements DeterministicPrivateKey {
+  curve = CurveType.SECP256k1;
+  [Symbol.toStringTag] = 'SECP256k1PrivateKey';
+
+  constructor() {
     Object.freeze(this);
+  }
+
+  getPublicKey(): SECP256k1PublicKey {
+    throw new Error('Method not implemented.');
   }
 
   derive(path: string): this {
     throw new Error('Method not implemented.');
   }
 
-  get deterministic(): boolean {
-    return false;
-  }
-}
-
-export abstract class PrivateKey {
-  public readonly curve: CurveType;
-
-  static fromSeed(seed: string): PrivateKey {
-    throw new Error('not implemented');
-  }
-
-  static fromMnemonic(mnemonic: string): PrivateKey {
-    throw new Error('not implemented');
-  }
-
-  constructor(curve: CurveType) {
-    this.curve = curve;
-  }
-
-  abstract get deterministic(): boolean;
-
-  abstract get publicKey(): PublicKey;
-
-  abstract sign(data: string): string;
-
-  abstract signRecoverable(data: string): string;
-}
-
-export class SEPC256kPrivateKey extends PrivateKey {
-  constructor(data: string) {
-    super(CurveType.SECP256k1);
-    Object.freeze(this);
-  }
-
-  get deterministic(): boolean {
-    return false;
-  }
-
-  get publicKey(): PublicKey {
+  sign(data: Uint8Array): string {
     throw new Error('Method not implemented.');
   }
 
-  sign(data: string): string {
-    throw new Error('Method not implemented.');
-  }
-
-  signRecoverable(data: string): string {
-    throw new Error('Method not implemented.');
-  }
-}
-
-export class SubSr25519PrivateKey extends PrivateKey {
-  constructor(data: string) {
-    super(CurveType.SubSr25519);
-    Object.freeze(this);
-  }
-
-  get deterministic(): boolean {
-    return false;
-  }
-
-  get publicKey(): PublicKey {
-    throw new Error('Method not implemented.');
-  }
-
-  sign(data: string): string {
-    throw new Error('Method not implemented.');
-  }
-
-  signRecoverable(data: string): string {
+  signRecoverable(data: Uint8Array): string {
     throw new Error('Method not implemented.');
   }
 }
