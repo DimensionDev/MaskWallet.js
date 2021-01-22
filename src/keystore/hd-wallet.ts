@@ -1,12 +1,12 @@
 import { assertFrozen, assertPlainObject, assertSnapshot, assertStorageRegistry } from 'asserts';
 import { CoinInfo } from 'coin-registry';
 import { WalletError } from 'errors';
-import { KeyStoreSnapshot, KeyType, SignParams, StorageRegistry } from 'types';
+import { KeyStoreSnapshot, KeyType, SignParams, KeyStoreRegistry } from 'types';
 
 export class HDWallet {
-  #registry: Readonly<StorageRegistry>;
+  #registry: Readonly<KeyStoreRegistry>;
 
-  constructor(registry: StorageRegistry) {
+  constructor(registry: KeyStoreRegistry) {
     assertStorageRegistry(registry, '`registry` parameter');
     this.#registry = registry;
     Object.freeze(this);
@@ -40,6 +40,6 @@ export class HDWallet {
   // #endregion
 
   get [Symbol.toStringTag]() {
-    return 'Wallet';
+    return 'HDWallet';
   }
 }

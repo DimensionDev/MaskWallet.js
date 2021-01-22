@@ -9,14 +9,14 @@ import {
   KeyStoreSnapshot,
   KeyStoreSnapshotMarked,
   KeyStoreSource,
-  StorageRegistry,
+  KeyStoreRegistry,
   UnlockKeyType,
 } from 'types';
 
 export class HDKeyStoreManager {
-  #registry: Readonly<StorageRegistry>;
+  #registry: Readonly<KeyStoreRegistry>;
 
-  constructor(registry: StorageRegistry) {
+  constructor(registry: KeyStoreRegistry) {
     assertStorageRegistry(registry);
     this.#registry = registry;
     Object.freeze(this);
