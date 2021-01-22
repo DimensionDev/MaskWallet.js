@@ -5,8 +5,8 @@ import { fromHexString, toHexString } from './utils';
 
 describe('aes', () => {
   const plaintext = 'TokenCoreX';
-  const key = Uint8Array.of(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4);
-  const iv = Uint8Array.of(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4);
+  const key = fromHexString('01020304010203040102030401020304');
+  const iv = fromHexString('01020304010203040102030401020304');
 
   it('AES-128-CTR', async () => {
     const encrypted = 'e19e6c5923d33c587cf8';
