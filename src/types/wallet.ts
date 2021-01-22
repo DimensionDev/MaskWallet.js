@@ -1,4 +1,4 @@
-import { KeyStore } from 'crypto-suite/types';
+import { KeyStore } from 'crypto-suite';
 import { KeyPair, KeyStoreSnapshot, KeyStoreSource } from './keystore';
 
 export enum UnlockKeyType {

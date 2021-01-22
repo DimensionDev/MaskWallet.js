@@ -1,4 +1,4 @@
-import { KeyStore } from 'crypto-suite/types';
+import { KeyStore } from 'crypto-suite';
 import { CurveType } from './basic';
 
 export interface KeyPair {
