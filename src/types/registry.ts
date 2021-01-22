@@ -1,7 +1,7 @@
 import { KeyStoreSnapshot } from './keystore';
 
 export interface KeyStoreRegistry {
-  hashes(): AsyncGenerator<KeyStoreSnapshot['hash']>;
+  hashes(): AsyncGenerator<KeyStoreSnapshot['hash'], void, unknown>;
   hasKeyStore(hash: KeyStoreSnapshot['hash']): Promise<boolean>;
   getKeyStore(hash: KeyStoreSnapshot['hash']): Promise<Readonly<KeyStoreSnapshot> | undefined>;
   setKeyStore(hash: KeyStoreSnapshot['hash'], snapshot: Readonly<KeyStoreSnapshot>): Promise<void>;
