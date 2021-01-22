@@ -1,1 +1,2 @@
-export { HDCryptoSuite } from './hd';
+export * from './hd';
+export * from './crypto-key';

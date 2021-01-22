@@ -1,7 +1,8 @@
 import { assertPlainObject, assertSnapshot } from 'asserts';
 import { CoinInfo } from 'coin-registry';
+import { CryptoKey, PrivateKey, PublicKey } from 'crypto-suite';
 import { WalletError } from 'errors';
-import { CryptoKey, ImportKeyStoreParams, KeyPair, KeyStoreSnapshot, KeyType, PrivateKey, PublicKey, UnlockKeyType } from 'types';
+import { ImportKeyStoreParams, KeyPair, KeyStoreSnapshot, KeyType, UnlockKeyType } from 'types';
 
 type UnlockedStore = readonly [UnlockKeyType, string];
 
