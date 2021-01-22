@@ -57,7 +57,6 @@ export abstract class PrivateKey {
 
   constructor(curve: CurveType) {
     this.curve = curve;
-    Object.freeze(this);
   }
 
   abstract get deterministic(): boolean;
