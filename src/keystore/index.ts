@@ -29,7 +29,7 @@ export class HDKeyStore {
     this.#hash = snapshot.hash;
     this.#crypto = { ...snapshot.crypto };
     this.#meta = { ...snapshot.meta };
-    this.#pairs = Array.from(snapshot.pairs);
+    this.#pairs = Array.from(snapshot.pairs).map(cloneKeyPair);
   }
 
   // #region locker
