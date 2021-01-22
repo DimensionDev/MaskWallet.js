@@ -8,5 +8,10 @@
     "strict": true,
     "noImplicitAny": true,
     "baseUrl": "src"
+  },
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
   }
 }

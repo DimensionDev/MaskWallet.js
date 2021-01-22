@@ -16,7 +16,7 @@ export function fromHexString(input: string) {
 export function toHexString(blocks: Uint8Array) {
   let encoded = '';
   for (const block of blocks) {
-    encoded += block.toString(16);
+    encoded += block.toString(16).padStart(2, '0');
   }
   return encoded;
 }
