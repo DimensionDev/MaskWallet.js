@@ -14,36 +14,36 @@ export type KeyStore = KeyStore.Type;
 namespace KeyStore {
   export type Type = AESCipher & KeyDerivation & { mac: string };
 
-  interface AESCipher {
+  export interface AESCipher {
     cipher: 'aes-128-ctr' | 'aes-128-cbc';
     cipherparams: AESCipherParams;
     ciphertext: string;
   }
 
-  interface AESCipherParams {
+  export interface AESCipherParams {
     iv: string;
   }
 
-  type KeyDerivation = PBKDF2 | Scrypt;
+  export type KeyDerivation = PBKDF2 | Scrypt;
 
-  interface PBKDF2 {
+  export interface PBKDF2 {
     kdf: 'pbkdf2';
     kdfparams: PBKDF2Params;
   }
 
-  interface PBKDF2Params {
+  export interface PBKDF2Params {
     c: number;
     prf: 'hmac-sha256';
     dklen: number;
     salt: string;
   }
 
-  interface Scrypt {
+  export interface Scrypt {
     kdf: 'scrypt';
     kdfparams: ScryptParams;
   }
 
-  interface ScryptParams {
+  export interface ScryptParams {
     n: number;
     p: number;
     r: number;

@@ -1,9 +1,7 @@
 import { assertPlainObject } from 'asserts';
 import { CryptoSuiteError, KeyStore } from './types';
 import { fromHexString } from './utils';
-
-// Reference:
-//   https://github.com/ethereum/eth-keyfile
+import crypto, { scrypt } from './driver';
 
 export class HDCryptoSuite {
   #store: KeyStore;
@@ -19,39 +17,40 @@ export class HDCryptoSuite {
     Object.freeze(this);
   }
 
-  driveKey(password: string): Promise<string> {
-    if (this.#store.kdf === 'pbkdf2') {
-      // let salt_bytes: Vec<u8> = FromHex::from_hex(&self.salt).unwrap();
-      const salt = fromHexString(this.#store.kdfparams.salt);
-      // pbkdf2::pbkdf2::<hmac::Hmac<sha2::Sha256>>(password, &salt_bytes, self.c as usize, out);
+  async driveKey(password: Uint8Array): Promise<Uint8Array> {
+    const salt = fromHexString(this.#store.kdfparams.salt);
+    if (this.#store.kdf === 'pbkdf2' && this.#store.kdfparams.prf === 'hmac-sha256') {
+      const iterations = this.#store.kdfparams.c;
+      const derivedBits = await crypto.subtle.deriveBits(
+        { name: 'PBKDF2', hash: 'SHA-256', salt, iterations },
+        await crypto.subtle.importKey('raw', password, { name: 'PBKDF2' }, false, ['deriveBits']),
+        this.#store.kdfparams.dklen
+      );
+      return new Uint8Array(derivedBits);
     } else if (this.#store.kdf === 'scrypt') {
-      const salt = fromHexString(this.#store.kdfparams.salt);
-      // let salt_bytes: Vec<u8> = FromHex::from_hex(&self.salt).unwrap();
-      const log_n = Math.round(Math.log2(this.#store.kdfparams.n));
-      // let log_n = (self.n as f64).log2().round();
-      // let inner_params = scrypt::ScryptParams::new(log_n as u8, self.r, self.p).expect("init scrypt params");
-      // scrypt::scrypt(password, &salt_bytes, &inner_params, out).expect("can not execute scrypt");
+      const n = Math.round(Math.log2(this.#store.kdfparams.n));
+      return scrypt(password, salt, n, this.#store.kdfparams.r, this.#store.kdfparams.p, this.#store.kdfparams.dklen);
     }
-    throw new CryptoSuiteError(`unknown keystore kdf: ${this.#store.kdf}`);
+    throw new CryptoSuiteError('Unsupported Key Store');
   }
 
-  encrypt(password: string): Promise<string> {
+  encrypt(password: Uint8Array): Promise<Uint8Array> {
     throw new CryptoSuiteError('Method not implemented.');
   }
 
-  decryptPassword(password: string): Promise<string> {
+  decryptPassword(password: Uint8Array): Promise<Uint8Array> {
     throw new CryptoSuiteError('Method not implemented.');
   }
 
-  decryptDriverdKey(password: string): Promise<string> {
+  decryptDriverdKey(password: Uint8Array): Promise<Uint8Array> {
     throw new CryptoSuiteError('Method not implemented.');
   }
 
-  verifyPassword(password: string): Promise<boolean> {
+  verifyPassword(password: Uint8Array): Promise<boolean> {
     throw new CryptoSuiteError('Method not implemented.');
   }
 
-  verifyDriverdKey(password: string): Promise<boolean> {
+  verifyDriverdKey(password: Uint8Array): Promise<boolean> {
     throw new CryptoSuiteError('Method not implemented.');
   }
 
