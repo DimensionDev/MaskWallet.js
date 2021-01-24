@@ -13,9 +13,9 @@ export const AES128CBC = Object.freeze({
 function make(name: 'AES-CTR' | 'AES-CBC', usage: 'encrypt' | 'decrypt') {
   return async (data: Uint8Array, key: Uint8Array, iv: Uint8Array) => {
     if (key.length !== 16) {
-      throw new Error(`${name} invalid key length (${usage})`);
+      throw new Error(`${name}: invalid key length (${usage})`);
     } else if (iv.length !== 16) {
-      throw new Error(`${name} invalid iv length (${usage})`);
+      throw new Error(`${name}: invalid iv length (${usage})`);
     }
     // prettier-ignore
     const params = name === 'AES-CTR'
