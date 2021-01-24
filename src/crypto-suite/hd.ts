@@ -18,7 +18,12 @@ export class HDCryptoSuite {
   }
 
   async driveKey(password: Uint8Array): Promise<Uint8Array> {
-    const salt = fromHexString(this.#store.kdfparams.salt);
+    let salt;
+    try {
+      salt = fromHexString(this.#store.kdfparams.salt);
+    } catch (err) {
+      throw new CryptoSuiteError('parsing kdfparams.salt failed', err);
+    }
     if (this.#store.kdf === 'pbkdf2' && this.#store.kdfparams.prf === 'hmac-sha256') {
       const iterations = this.#store.kdfparams.c;
       const derivedBits = await crypto.subtle.deriveBits(

@@ -1,5 +1,4 @@
-import crypto from './driver/node';
-import { CryptoSuiteError } from './types';
+import crypto from './driver';
 
 export const AES128CTR = Object.freeze({
   encrypt: make('AES-CTR', 'encrypt'),
@@ -11,19 +10,19 @@ export const AES128CBC = Object.freeze({
   decrypt: make('AES-CBC', 'decrypt'),
 });
 
-function make(name: 'AES-CTR' | 'AES-CBC', action: 'encrypt' | 'decrypt') {
+function make(name: 'AES-CTR' | 'AES-CBC', usage: 'encrypt' | 'decrypt') {
   return async (data: Uint8Array, key: Uint8Array, iv: Uint8Array) => {
     if (key.length !== 16) {
-      throw new CryptoSuiteError(`Invalid Key length`);
+      throw new Error(`${name} invalid key length (${usage})`);
     } else if (iv.length !== 16) {
-      throw new CryptoSuiteError(`Invalid IV length`);
+      throw new Error(`${name} invalid iv length (${usage})`);
     }
     // prettier-ignore
     const params = name === 'AES-CTR'
-      ? <AesCtrParams>{ name: 'AES-CTR', length: 128, counter: iv }
-      : <AesCbcParams>{ name: 'AES-CBC', length: 128, iv };
-    const cipherkey = await crypto.subtle.importKey('raw', key, { name }, false, [action]);
-    const ciphertext = await crypto.subtle[action](params, cipherkey, data);
+      ? <AesCtrParams>{ name, length: 128, counter: iv }
+      : <AesCbcParams>{ name, length: 128, iv };
+    const cipherkey = await crypto.subtle.importKey('raw', key, { name }, false, [usage]);
+    const ciphertext = await crypto.subtle[usage](params, cipherkey, data);
     return new Uint8Array(ciphertext);
   };
 }
