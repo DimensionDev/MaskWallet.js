@@ -16,7 +16,7 @@ export enum ChainType {
 
 export type CreateKeyStoreParams = CreateKeyStoreParams.Type;
 
-export namespace CreateKeyStoreParams {
+namespace CreateKeyStoreParams {
   export type Type = HDKeyStore;
 
   interface HDKeyStore {
@@ -42,7 +42,7 @@ export interface CreateKeyStoreResult {
 
 export type ImportKeyStoreParams = ImportKeyStoreParams.Type;
 
-export namespace ImportKeyStoreParams {
+namespace ImportKeyStoreParams {
   export type Type = Mnemonic | KeyStoreJSON | PrivateKey;
 
   interface Generanl {
@@ -75,7 +75,7 @@ export namespace ImportKeyStoreParams {
 
 export type ExportKeyStoreParams = ExportKeyStoreParams.Type;
 
-export namespace ExportKeyStoreParams {
+namespace ExportKeyStoreParams {
   export type Type = Mnemonic | PrivateKey;
 
   interface Generanl {
@@ -102,7 +102,7 @@ export namespace ExportKeyStoreParams {
 
 export type SignParams = SignParams.Type;
 
-export namespace SignParams {
+namespace SignParams {
   export interface Type {
     hash: KeyStoreSnapshot['hash'];
     chainType: ChainType;

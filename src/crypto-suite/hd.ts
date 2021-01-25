@@ -1,7 +1,7 @@
 import { assertPlainObject } from 'asserts';
-import { CryptoSuiteError, KeyStore } from './types';
-import { fromHexString } from './utils';
+import { fromHexString } from 'utils/hex';
 import crypto, { scrypt } from './driver';
+import { CryptoSuiteError, KeyStore } from './types';
 
 export class HDCryptoSuite {
   #store: KeyStore;

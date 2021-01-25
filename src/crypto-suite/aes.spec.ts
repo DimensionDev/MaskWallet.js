@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import 'mocha';
+import { fromHexString, toHexString } from 'utils/hex';
 import { AES128CBC, AES128CTR } from './aes';
-import { fromHexString, toHexString } from './utils';
 
 describe('aes', () => {
   const plaintext = 'TokenCoreX';
