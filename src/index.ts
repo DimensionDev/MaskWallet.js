@@ -1,7 +1,6 @@
 import { assertPlainObject } from 'asserts';
-import { HDKeyStoreManager } from 'keystore/hd-key-store';
-import { HDWallet } from 'keystore/hd-wallet';
-import { KeyStoreRegistry } from 'types';
+import { HDKeyStoreManager, HDWallet } from 'keystore';
+import { KeyStoreAgent, KeyStoreRegistry } from 'types';
 
 export { getCoinRegistry } from 'coin-registry';
 
@@ -13,8 +12,9 @@ export function setKeyStoreRegistry(registry: KeyStoreRegistry): void {
   if (wallet !== undefined || keyStore !== undefined) {
     throw new TypeError('Not allowed');
   }
-  wallet = new HDWallet(registry);
-  keyStore = new HDKeyStoreManager(registry);
+  const agent = new KeyStoreAgent(registry);
+  wallet = new HDWallet(agent);
+  keyStore = new HDKeyStoreManager(agent);
 }
 
 export function getHDWalletInstance() {

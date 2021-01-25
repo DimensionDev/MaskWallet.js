@@ -65,7 +65,7 @@ namespace ImportKeyStoreParams {
 
   interface PrivateKey extends Generanl {
     source: KeyStoreSource.PrivateKey;
-    key: string;
+    key: Uint8Array;
   }
 }
 

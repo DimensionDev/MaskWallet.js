@@ -1,87 +1,130 @@
-import { assertPlainObject } from 'asserts';
+import { assertPlainObject, assertSnapshot } from 'asserts';
+import { CoinInfo } from 'coin-registry';
+import { CryptoKey, PrivateKey, PublicKey } from 'crypto-suite';
 import { WalletError } from 'errors';
-import { HDKeyStore } from 'keystore';
-import {
-  CreateKeyStoreParams,
-  CreateKeyStoreResult,
-  ExportKeyStoreParams,
-  ImportKeyStoreParams,
-  KeyStoreAgent,
-  KeyStoreSnapshot,
-  KeyStoreSnapshotMarked,
-  KeyStoreSource,
-  UnlockKeyType,
-} from 'types';
+import { ImportKeyStoreParams, KeyPair, KeyStoreSnapshot, KeyType, UnlockKeyType } from 'types';
 
-export class HDKeyStoreManager {
-  #registry: KeyStoreAgent;
+type UnlockedStore = readonly [UnlockKeyType, string];
 
-  constructor(registry: KeyStoreAgent) {
-    this.#registry = registry;
-    Object.freeze(this);
-  }
+export class HDKeyStore {
+  #store: UnlockedStore | null = null;
+  #hash: KeyStoreSnapshot['hash'];
+  #crypto: KeyStoreSnapshot['crypto'];
+  #meta: KeyStoreSnapshot['meta'];
+  #pairs: KeyStoreSnapshot['pairs'];
 
-  async create(params: CreateKeyStoreParams): Promise<CreateKeyStoreResult> {
+  static async create(params: ImportKeyStoreParams): Promise<HDKeyStore> {
     assertPlainObject(params, '`params` parameter');
+    if (params.type !== 'hd') {
+      throw new Error('`.kind` must be is HDKeyStore');
+    }
     throw new WalletError('not implemented');
   }
 
-  async import(params: ImportKeyStoreParams) {
-    assertPlainObject(params, '`params` parameter');
-    const snapshot = await HDKeyStore.import(params);
-    if (!params.overwrite) {
-      await this.#registry.assertKeyStoreAvailable(snapshot.keyHash);
+  constructor(snapshot: Readonly<KeyStoreSnapshot>) {
+    assertSnapshot(snapshot);
+    if (snapshot.type !== 'hd') {
+      throw new Error('unsupported snapshot type');
     }
-    await this.#registry.setKeyStore(snapshot.keyHash, snapshot.toJSON());
+    this.#hash = snapshot.hash;
+    this.#crypto = { ...snapshot.crypto };
+    this.#meta = { ...snapshot.meta };
+    this.#pairs = Array.from(snapshot.pairs).map(cloneKeyPair);
+    Object.freeze(this);
   }
 
-  async export(params: ExportKeyStoreParams) {
-    assertPlainObject(params, '`params` parameter');
-    await this.#registry.assertKeyStoreAvailable(params.hash);
-    const snapshot = await this.#registry.getKeyStore(params.hash);
-    const store = new HDKeyStore(snapshot!);
-    if (params.source === KeyStoreSource.Mnemonic) {
-      await store.unlock(UnlockKeyType.DeriverdKey, params.mnemonic);
-      return store.exportMnemonic();
-    } else if (params.source === KeyStoreSource.PrivateKey) {
-      await store.unlock(UnlockKeyType.Password, params.password);
-      return store.exportPrivateKey(params.chainType, params.hash);
-    }
+  // #region locker
+  isLocked() {
+    return this.#store === null;
   }
 
-  async delete(hash: KeyStoreSnapshot['hash']) {
-    await this.#registry.assertKeyStoreAvailable(hash);
-    return this.#registry.setKeyStore(hash, undefined);
+  lock() {
+    this.#store = null;
   }
 
-  getAllKeyStories() {
-    return this[Symbol.asyncIterator]();
+  async unlock(type: UnlockKeyType, value: string) {
+    // TODO: verify unlock data correctness
+    this.#store = Object.freeze<UnlockedStore>([type, value]);
+    return true;
   }
 
-  async *[Symbol.asyncIterator]() {
-    for await (const hash of this.#registry.hashes()) {
-      const store = await this.#registry.getKeyStore(hash);
-      if (store === undefined || store.type !== 'hd') {
-        continue;
-      }
-      yield Object.freeze<KeyStoreSnapshotMarked>({
-        version: store.version,
-        type: store.type,
-        hash: store.hash,
-        name: store.meta.name,
-        source: store.meta.source,
-        timestamp: store.meta.timestamp,
-        remark: store.meta.remark,
-        passwordHint: store.meta.passwordHint,
-      });
+  private assertUnlocked() {
+    if (this.isLocked()) {
+      throw new WalletError('This key store need unlock.');
     }
   }
+  // #endregion
 
-  async destroy() {
-    return this.#registry.clear();
+  async derive(info: CoinInfo): Promise<KeyPair> {
+    this.assertUnlocked();
+    throw new WalletError('not implemented');
   }
 
-  get [Symbol.toStringTag]() {
-    return 'HDKeyStoreManager';
+  async find(type: KeyType.PublicKey, symbol: string, address: string, path?: string): Promise<PublicKey>;
+  async find(type: KeyType.PrivateKey, symbol: string, address: string, path?: string): Promise<PrivateKey>;
+  async find(type: KeyType, symbol: string, address: string, path?: string): Promise<CryptoKey> {
+    if (type !== KeyType.PublicKey) this.assertUnlocked();
+    throw new WalletError('not implemented');
   }
+
+  async exportMnemonic(): Promise<string> {
+    this.assertUnlocked();
+    throw new WalletError('not implemented');
+  }
+
+  async exportPrivateKey(coin: string, mainAddress: string, path?: string): Promise<string> {
+    this.assertUnlocked();
+    throw new WalletError('not implemented');
+  }
+
+  async deriveKey(info: CoinInfo): Promise<KeyPair> {
+    this.assertUnlocked();
+    throw new WalletError('not implemented');
+  }
+
+  getKeyPair(symbol: string, address: string): Readonly<KeyPair | undefined> {
+    const pair = this.#pairs.find((pair) => pair.coin === symbol && pair.address === address);
+    return pair ? cloneKeyPair(pair) : undefined;
+  }
+
+  getAllKeyPairs(): ReadonlyArray<KeyPair> {
+    return Object.freeze(Array.from(this.#pairs).map(cloneKeyPair));
+  }
+
+  async sign(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
+    this.assertUnlocked();
+    throw new WalletError('not implemented');
+  }
+
+  async signRecoverableHash(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
+    this.assertUnlocked();
+    throw new WalletError('not implemented');
+  }
+
+  get keyHash() {
+    return this.#hash;
+  }
+
+  toJSON(): Readonly<KeyStoreSnapshot> {
+    return Object.freeze({
+      version: 1,
+      type: 'hd',
+      hash: this.#hash,
+      pairs: this.#pairs,
+      crypto: this.#crypto,
+      meta: this.#meta,
+    });
+  }
+}
+
+function cloneKeyPair(pair: KeyPair): Readonly<KeyPair> {
+  return Object.freeze<KeyPair>({
+    coin: pair.coin,
+    address: pair.address,
+    derivationPath: pair.derivationPath,
+    curve: pair.curve,
+    network: pair.network,
+    segWit: pair.segWit,
+    extPubKey: pair.extPubKey,
+  });
 }
