@@ -115,6 +115,14 @@ export class HDKeyStore {
       meta: this.#meta,
     });
   }
+
+  get [Symbol.toStringTag]() {
+    return 'HDKeyStore';
+  }
+}
+
+export function isHDKeyStore(value: object): value is HDKeyStore {
+  return Reflect.get(value, Symbol.toStringTag) === 'HDKeyStore';
 }
 
 function cloneKeyPair(pair: KeyPair): Readonly<KeyPair> {

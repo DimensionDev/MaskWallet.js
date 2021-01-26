@@ -45,7 +45,7 @@ export type ImportKeyStoreParams = ImportKeyStoreParams.Type;
 namespace ImportKeyStoreParams {
   export type Type = Mnemonic | KeyStoreJSON | PrivateKey;
 
-  interface Generanl {
+  interface General {
     type: 'hd';
     name: string;
     overwrite: boolean;
@@ -53,17 +53,17 @@ namespace ImportKeyStoreParams {
     passwordHint?: string;
   }
 
-  interface Mnemonic extends Generanl {
+  interface Mnemonic extends General {
     source: KeyStoreSource.Mnemonic;
     mnemonic: string;
   }
 
-  interface KeyStoreJSON extends Generanl {
+  interface KeyStoreJSON extends General {
     source: KeyStoreSource.KeyStore;
     store: KeyStore;
   }
 
-  interface PrivateKey extends Generanl {
+  interface PrivateKey extends General {
     source: KeyStoreSource.PrivateKey;
     key: Uint8Array;
   }
@@ -78,18 +78,18 @@ export type ExportKeyStoreParams = ExportKeyStoreParams.Type;
 namespace ExportKeyStoreParams {
   export type Type = Mnemonic | PrivateKey;
 
-  interface Generanl {
+  interface General {
     type: 'hd';
     hash: KeyStoreSnapshot['hash'];
     password: string;
   }
 
-  interface Mnemonic extends Generanl {
+  interface Mnemonic extends General {
     source: KeyStoreSource.Mnemonic;
     mnemonic: string;
   }
 
-  interface PrivateKey extends Generanl {
+  interface PrivateKey extends General {
     source: KeyStoreSource.PrivateKey;
     chainType: ChainType;
     network: string;

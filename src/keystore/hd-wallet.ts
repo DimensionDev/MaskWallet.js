@@ -42,3 +42,7 @@ export class HDWallet {
     return 'HDWallet';
   }
 }
+
+export function isHDWallet(value: object): value is HDWallet {
+  return Reflect.get(value, Symbol.toStringTag) === 'HDWallet';
+}
