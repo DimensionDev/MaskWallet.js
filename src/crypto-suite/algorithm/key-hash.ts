@@ -1,4 +1,4 @@
-import crypto from './driver';
+import crypto from '../driver/node';
 
 export async function makeKeyHash(data: Uint8Array): Promise<Uint8Array> {
   const sha256 = (data: ArrayBuffer) => crypto.subtle.digest('SHA-256', data);

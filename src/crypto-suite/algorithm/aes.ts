@@ -1,11 +1,16 @@
-import crypto from './driver';
+import crypto from '../driver/node';
 
-export const AES128CTR = Object.freeze({
+interface AESOperation {
+  encrypt(data: Uint8Array, key: Uint8Array, iv: Uint8Array): Promise<Uint8Array>;
+  decrypt(data: Uint8Array, key: Uint8Array, iv: Uint8Array): Promise<Uint8Array>;
+}
+
+export const AES128CTR = Object.freeze<AESOperation>({
   encrypt: make('AES-CTR', 'encrypt'),
   decrypt: make('AES-CTR', 'decrypt'),
 });
 
-export const AES128CBC = Object.freeze({
+export const AES128CBC = Object.freeze<AESOperation>({
   encrypt: make('AES-CBC', 'encrypt'),
   decrypt: make('AES-CBC', 'decrypt'),
 });
