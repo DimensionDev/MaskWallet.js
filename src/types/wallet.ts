@@ -48,9 +48,9 @@ namespace ImportKeyStoreParams {
   interface General {
     type: 'hd';
     name: string;
-    overwrite: boolean;
     password: string;
     passwordHint?: string;
+    overwrite?: boolean;
   }
 
   interface Mnemonic extends General {
