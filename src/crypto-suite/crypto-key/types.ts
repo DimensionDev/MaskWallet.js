@@ -10,8 +10,8 @@ export abstract class PublicKey {
 
 export abstract class PrivateKey extends PublicKey {
   abstract getPublicKey(): PublicKey;
-  abstract sign(data: Uint8Array): string;
-  abstract signRecoverable(data: Uint8Array): string;
+  abstract sign(data: Uint8Array): Promise<Uint8Array>;
+  abstract signRecoverable(data: Uint8Array): Promise<Uint8Array>;
 }
 
 export abstract class DeterministicPublicKey extends PublicKey {
@@ -20,11 +20,11 @@ export abstract class DeterministicPublicKey extends PublicKey {
 }
 
 export abstract class DeterministicPrivateKey extends PrivateKey implements DeterministicPublicKey {
-  static fromSeed(seed: string): DeterministicPrivateKey {
+  static fromSeed(path: string, seed: string): Promise<DeterministicPrivateKey> {
     throw new Error('The Method not implemented.');
   }
 
-  static fromMnemonic(mnemonic: string): DeterministicPrivateKey {
+  static fromMnemonic(path: string, mnemonic: string): Promise<DeterministicPrivateKey> {
     throw new Error('The Method not implemented.');
   }
 

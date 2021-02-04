@@ -1,4 +1,4 @@
-import crypto from '../driver/node';
+import crypto from '../driver';
 
 interface AESOperation {
   encrypt(data: Uint8Array, key: Uint8Array, iv: Uint8Array): Promise<Uint8Array>;

@@ -1,2 +1,2 @@
-export * from './key-hash';
+export * from './hash';
 export * from './aes';
