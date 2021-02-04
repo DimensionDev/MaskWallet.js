@@ -1,23 +1,34 @@
-import { CurveType } from 'types';
+import { CurveType, KeyType } from 'types';
 
 export type CryptoKey = PublicKey | PrivateKey;
 
-export interface PublicKey {
-  curve: CurveType;
+export abstract class PublicKey {
+  abstract get [Symbol.toStringTag](): string;
+  /** Base58 / SS58 encoded */
+  abstract toString(): string;
 }
 
-export interface PrivateKey extends PublicKey {
-  curve: CurveType;
-  getPublicKey(): PublicKey;
-  sign(data: Uint8Array): string;
-  signRecoverable(data: Uint8Array): string;
+export abstract class PrivateKey extends PublicKey {
+  abstract getPublicKey(): PublicKey;
+  abstract sign(data: Uint8Array): string;
+  abstract signRecoverable(data: Uint8Array): string;
 }
 
-export interface DeterministicPublicKey extends PublicKey {
-  derive(path: string): this;
+export abstract class DeterministicPublicKey extends PublicKey {
+  abstract get curve(): CurveType;
+  abstract derive(path: string): this;
 }
 
-export interface DeterministicPrivateKey extends PrivateKey, DeterministicPublicKey {
-  getPublicKey(): DeterministicPublicKey;
-  derive(path: string): this;
+export abstract class DeterministicPrivateKey extends PrivateKey implements DeterministicPublicKey {
+  static fromSeed(seed: string): DeterministicPrivateKey {
+    throw new Error('The Method not implemented.');
+  }
+
+  static fromMnemonic(mnemonic: string): DeterministicPrivateKey {
+    throw new Error('The Method not implemented.');
+  }
+
+  abstract get curve(): CurveType;
+  abstract getPublicKey(): DeterministicPublicKey;
+  abstract derive(path: string): this;
 }

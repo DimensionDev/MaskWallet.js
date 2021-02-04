@@ -1,15 +1,17 @@
 import { CurveType } from 'types';
 import { DeterministicPrivateKey, DeterministicPublicKey } from './types';
 
-export class SECP256k1PublicKey implements DeterministicPublicKey {
-  curve = CurveType.SECP256k1;
-
-  constructor() {
-    Object.freeze(this);
-  }
-
+export class SECP256k1PublicKey extends DeterministicPublicKey {
   derive(path: string): this {
     throw new Error('Method not implemented.');
+  }
+
+  toString(): string {
+    throw new Error('Method not implemented.');
+  }
+
+  get curve() {
+    return CurveType.SECP256k1;
   }
 
   get [Symbol.toStringTag]() {
@@ -17,11 +19,13 @@ export class SECP256k1PublicKey implements DeterministicPublicKey {
   }
 }
 
-export class SECP256k1PrivateKey implements DeterministicPrivateKey {
-  curve = CurveType.SECP256k1;
+export class SECP256k1PrivateKey extends DeterministicPrivateKey {
+  static fromSeed(seed: string): SECP256k1PrivateKey {
+    throw new Error('The Method not implemented.');
+  }
 
-  constructor() {
-    Object.freeze(this);
+  static fromMnemonic(mnemonic: string): SECP256k1PrivateKey {
+    throw new Error('The Method not implemented.');
   }
 
   getPublicKey(): SECP256k1PublicKey {
@@ -38,6 +42,14 @@ export class SECP256k1PrivateKey implements DeterministicPrivateKey {
 
   signRecoverable(data: Uint8Array): string {
     throw new Error('Method not implemented.');
+  }
+
+  toString(): string {
+    throw new Error('Method not implemented.');
+  }
+
+  get curve() {
+    return CurveType.SECP256k1;
   }
 
   get [Symbol.toStringTag]() {
