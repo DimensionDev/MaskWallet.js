@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import 'mocha';
-import { fromHexString, toHexString } from 'utils';
+import { fromHexString, toHexString } from '../../utils';
 import { AES128CBC, AES128CTR } from './aes';
 
 describe('aes', () => {

@@ -1,6 +1,6 @@
 import { assert } from 'chai';
 import 'mocha';
-import { fromHexString, toHexString } from 'utils';
+import { fromHexString, toHexString } from '../../utils';
 import { makeKeyHash } from './hash';
 
 describe('key hash', () => {
