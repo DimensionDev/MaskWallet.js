@@ -1,7 +1,7 @@
 import { assertPlainObject, assertSnapshot } from '../asserts';
 import { CoinInfo } from '../coin-registry';
 import { CryptoKey, KeyStore, PrivateKey, PublicKey } from '../crypto-suite';
-import { ChainType, ImportKeyStoreParams, KeyPair, KeyStoreSnapshot, KeyStoreType, KeyType, UnlockKeyType } from '../types';
+import { ChainType, ImportKeyStoreParams, KeyPair, KeyStoreSnapshot, KeyStoreSource, KeyStoreType, KeyType, UnlockKeyType } from '../types';
 
 type UnlockedStore = readonly [UnlockKeyType, string];
 
@@ -15,7 +15,7 @@ export class HDKeyStore {
   static async create(params: ImportKeyStoreParams): Promise<HDKeyStore> {
     assertPlainObject(params, '`params` parameter');
     if (params.type !== KeyStoreType.HD) {
-      throw new Error('`.kind` must be is HDKeyStore');
+      throw new Error('`.type` must be is HDKeyStore');
     }
     throw new Error('not implemented');
   }
@@ -60,7 +60,7 @@ export class HDKeyStore {
   }
 
   async find(type: KeyType.DeterministicPublicKey, chainType: ChainType, address: string): Promise<PublicKey>;
-  async find(type: KeyType.PrivateKey, chainType: ChainType, address: string, path?: string): Promise<PrivateKey>;
+  async find(type: KeyType.PrivateKey, chainType: ChainType, address: string, path?: string): Promise<PrivateKey<Uint8Array, Uint8Array>>;
   async find(type: KeyType, chainType: ChainType, address: string, path?: string): Promise<CryptoKey> {
     if (type !== KeyType.PublicKey) this.assertUnlocked();
     throw new Error('not implemented');

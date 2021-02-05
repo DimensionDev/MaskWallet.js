@@ -1,6 +1,6 @@
 import { CurveType } from '../../types';
 
-export type CryptoKey = PublicKey | PrivateKey;
+export type CryptoKey = PublicKey | PrivateKey<unknown, never>;
 
 export abstract class PublicKey {
   private readonly tag: string;
@@ -16,7 +16,7 @@ export abstract class PublicKey {
   }
 }
 
-export abstract class PrivateKey<T = Uint8Array, R = Uint8Array> extends PublicKey {
+export abstract class PrivateKey<T, R> extends PublicKey {
   abstract getPublicKey(): PublicKey;
   abstract sign(data: T): Promise<R>;
   abstract signRecoverable(data: T): Promise<R>;
@@ -33,7 +33,7 @@ export abstract class DeterministicPublicKey extends PublicKey {
   abstract derivePath(path: string): this;
 }
 
-export abstract class DeterministicPrivateKey extends PrivateKey implements DeterministicPublicKey {
+export abstract class DeterministicPrivateKey extends PrivateKey<Uint8Array, Uint8Array> implements DeterministicPublicKey {
   static fromSeed(path: string, seed: Buffer): Promise<DeterministicPrivateKey> {
     throw new Error('The Method not implemented.');
   }
@@ -59,7 +59,7 @@ export function isPublicKey(key: object, deterministic = false) {
   return deterministic ? key instanceof DeterministicPublicKey : key instanceof PublicKey;
 }
 
-export function isPrivateKey(key: object): key is PrivateKey;
+export function isPrivateKey<T, R>(key: object): key is PrivateKey<T, R>;
 export function isPrivateKey(key: object, deterministic: true): key is DeterministicPrivateKey;
 export function isPrivateKey(key: object, deterministic = false) {
   return deterministic ? key instanceof DeterministicPrivateKey : key instanceof PrivateKey;

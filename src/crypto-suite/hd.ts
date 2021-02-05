@@ -5,15 +5,21 @@ import { CryptoSuiteError, KeyStore } from './types';
 
 export class HDCryptoSuite {
   #store: KeyStore;
+  #password: Uint8Array;
 
-  constructor(store: KeyStore) {
+  static from(store: KeyStore, password: Uint8Array) {
     assertPlainObject(store, 'store');
     assertPlainObject(store.cipherparams, 'store.cipherparams');
     assertPlainObject(store.kdfparams, 'store.kdfparams');
     if (!(store.kdf === 'pbkdf2' || store.kdf === 'scrypt')) {
       throw new CryptoSuiteError('unsupported key store type');
     }
+    return new this(store, password);
+  }
+
+  private constructor(store: KeyStore, password: Uint8Array) {
     this.#store = store;
+    this.#password = password;
     Object.freeze(this);
   }
 
@@ -40,26 +46,35 @@ export class HDCryptoSuite {
   }
 
   encrypt(password: Uint8Array): Promise<Uint8Array> {
+    this.assertPassword(password);
     throw new CryptoSuiteError('Method not implemented.');
   }
 
   decryptPassword(password: Uint8Array): Promise<Uint8Array> {
+    this.assertPassword(password);
     throw new CryptoSuiteError('Method not implemented.');
   }
 
-  decryptDriverdKey(password: Uint8Array): Promise<Uint8Array> {
+  decryptDriverdKey(key: Uint8Array): Promise<Uint8Array> {
     throw new CryptoSuiteError('Method not implemented.');
   }
 
   verifyPassword(password: Uint8Array): Promise<boolean> {
+    this.assertPassword(password);
     throw new CryptoSuiteError('Method not implemented.');
   }
 
-  verifyDriverdKey(password: Uint8Array): Promise<boolean> {
+  verifyDriverdKey(key: Uint8Array): Promise<boolean> {
     throw new CryptoSuiteError('Method not implemented.');
+  }
+
+  assertPassword(password: Uint8Array) {
+    if (!Buffer.from(this.#password).equals(password)) {
+      throw new CryptoSuiteError('PasswordIncorrect');
+    }
   }
 
   get [Symbol.toStringTag](): string {
-    return `HDCryptoSuite(${this.#store.cipher}@${this.#store.kdf})`;
+    return 'HDCryptoSuite';
   }
 }
