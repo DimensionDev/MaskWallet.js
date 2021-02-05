@@ -9,6 +9,8 @@ export const enum CurveType {
 
 export const enum KeyType {
   Mnemonic = 'Mnemonic',
-  PrivateKey = 'PrivateKey',
   PublicKey = 'PublicKey',
+  PrivateKey = 'PrivateKey',
+  DeterministicPublicKey = 'DeterministicPublicKey',
+  DeterministicPrivateKey = 'DeterministicPrivateKey',
 }

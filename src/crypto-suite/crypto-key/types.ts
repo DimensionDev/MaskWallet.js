@@ -3,30 +3,34 @@ import { CurveType } from '../../types';
 export type CryptoKey = PublicKey | PrivateKey;
 
 export abstract class PublicKey {
-  abstract get [Symbol.toStringTag](): string;
-  /** Base58 / SS58 encoded */
+  private readonly tag: string;
+
+  constructor(tag: string) {
+    this.tag = tag;
+  }
+
   abstract toString(): string;
+
+  get [Symbol.toStringTag]() {
+    return this.tag;
+  }
 }
 
-export abstract class PrivateKey extends PublicKey {
+export abstract class PrivateKey<T = Uint8Array, R = Uint8Array> extends PublicKey {
   abstract getPublicKey(): PublicKey;
-  abstract sign(data: Uint8Array): Promise<Uint8Array>;
-  abstract signRecoverable(data: Uint8Array): Promise<Uint8Array>;
+  abstract sign(data: T): Promise<R>;
+  abstract signRecoverable(data: T): Promise<R>;
 }
 
 export abstract class DeterministicPublicKey extends PublicKey {
   readonly curve: CurveType;
 
   constructor(curve: CurveType) {
-    super();
+    super(`${curve}PublicKey`);
     this.curve = curve;
   }
 
   abstract derivePath(path: string): this;
-
-  get [Symbol.toStringTag]() {
-    return `${this.curve}PublicKey`;
-  }
 }
 
 export abstract class DeterministicPrivateKey extends PrivateKey implements DeterministicPublicKey {
@@ -41,16 +45,12 @@ export abstract class DeterministicPrivateKey extends PrivateKey implements Dete
   readonly curve: CurveType;
 
   constructor(curve: CurveType) {
-    super();
+    super(`${curve}PrivateKey`);
     this.curve = curve;
   }
 
   abstract getPublicKey(): DeterministicPublicKey;
   abstract derivePath(path: string): this;
-
-  get [Symbol.toStringTag]() {
-    return `${this.curve}PrivateKey`;
-  }
 }
 
 export function isPublicKey(key: object): key is PublicKey;

@@ -59,7 +59,7 @@ export class HDKeyStore {
     throw new Error('not implemented');
   }
 
-  async find(type: KeyType.PublicKey, chainType: ChainType, address: string, path?: string): Promise<PublicKey>;
+  async find(type: KeyType.DeterministicPublicKey, chainType: ChainType, address: string): Promise<PublicKey>;
   async find(type: KeyType.PrivateKey, chainType: ChainType, address: string, path?: string): Promise<PrivateKey>;
   async find(type: KeyType, chainType: ChainType, address: string, path?: string): Promise<CryptoKey> {
     if (type !== KeyType.PublicKey) this.assertUnlocked();
