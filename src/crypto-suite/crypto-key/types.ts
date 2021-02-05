@@ -16,7 +16,7 @@ export abstract class PrivateKey extends PublicKey {
 
 export abstract class DeterministicPublicKey extends PublicKey {
   abstract get curve(): CurveType;
-  abstract derive(path: string): this;
+  abstract derivePath(path: string): this;
 }
 
 export abstract class DeterministicPrivateKey extends PrivateKey implements DeterministicPublicKey {
@@ -30,5 +30,5 @@ export abstract class DeterministicPrivateKey extends PrivateKey implements Dete
 
   abstract get curve(): CurveType;
   abstract getPublicKey(): DeterministicPublicKey;
-  abstract derive(path: string): this;
+  abstract derivePath(path: string): this;
 }

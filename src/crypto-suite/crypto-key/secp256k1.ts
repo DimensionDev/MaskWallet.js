@@ -9,7 +9,7 @@ export class SECP256k1PublicKey extends DeterministicPublicKey {
     super();
   }
 
-  derive(path: string): this {
+  derivePath(path: string): this {
     throw new Error('Method not implemented.');
   }
 
@@ -48,7 +48,7 @@ export class SECP256k1PrivateKey extends DeterministicPrivateKey {
     return new SECP256k1PublicKey(publicKeyCreate(this.#key, true));
   }
 
-  derive(path: string): this {
+  derivePath(path: string): this {
     throw new Error('Method not implemented.');
   }
 
