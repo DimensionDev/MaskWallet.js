@@ -5,7 +5,7 @@ export async function makeKeyHash(data: Uint8Array) {
   return sha2$256(await sha2$256(data));
 }
 
-export async function sha2$256(data: ArrayBuffer) {
+export async function sha2$256(data: Uint8Array) {
   return new Uint8Array(await crypto.subtle.digest('SHA-256', data));
 }
 
