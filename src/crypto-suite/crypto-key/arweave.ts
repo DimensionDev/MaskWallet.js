@@ -14,6 +14,10 @@ export class ArweavePublicKey extends PublicKey {
     Object.freeze(this);
   }
 
+  toAddress() {
+    return arweave.wallets.jwkToAddress(this.#key);
+  }
+
   toString() {
     return this.#key.n!;
   }
@@ -45,6 +49,10 @@ export class ArweavePrivateKey extends PrivateKey<Transaction, void> {
 
   signRecoverable(transaction: Transaction): Promise<void> {
     throw new Error('The arweave not supported recoerable sign.');
+  }
+
+  toAddress() {
+    return arweave.wallets.jwkToAddress(this.#key);
   }
 
   toString(): string {
