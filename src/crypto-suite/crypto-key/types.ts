@@ -20,7 +20,7 @@ export abstract class DeterministicPublicKey extends PublicKey {
 }
 
 export abstract class DeterministicPrivateKey extends PrivateKey implements DeterministicPublicKey {
-  static fromSeed(path: string, seed: string): Promise<DeterministicPrivateKey> {
+  static fromSeed(path: string, seed: Buffer): Promise<DeterministicPrivateKey> {
     throw new Error('The Method not implemented.');
   }
 
