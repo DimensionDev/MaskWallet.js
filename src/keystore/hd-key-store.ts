@@ -1,7 +1,7 @@
 import { assertPlainObject, assertSnapshot } from '../asserts';
 import { CoinInfo } from '../coin-registry';
 import { CryptoKey, KeyStore, PrivateKey, PublicKey } from '../crypto-suite';
-import { ChainType, ImportKeyStoreParams, KeyPair, KeyStoreSnapshot, KeyStoreSource, KeyStoreType, KeyType, UnlockKeyType } from '../types';
+import { ChainType, ImportKeyStoreParams, KeyPair, KeyStoreSnapshot, KeyStoreType, KeyType, UnlockKeyType } from '../types';
 
 type UnlockedStore = readonly [UnlockKeyType, string];
 
