@@ -4,9 +4,9 @@ import { CurveType } from './basic';
 export interface KeyPair {
   coin: string;
   address: string;
-  derivationPath: string;
-  curve: CurveType;
-  network: string;
+  derivationPath?: string;
+  curve?: CurveType;
+  network?: string;
   segWit?: string;
   extPubKey?: string; // extended public key
 }
