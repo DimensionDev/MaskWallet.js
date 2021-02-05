@@ -11,6 +11,7 @@ export class ArweavePublicKey extends PublicKey {
   constructor(jwk: JWKPublicInterface) {
     super('ArweavePublicKey');
     this.#key = jwk;
+    Object.freeze(this);
   }
 
   toString() {
@@ -24,6 +25,7 @@ export class ArweavePrivateKey extends PrivateKey<Transaction, void> {
   constructor(jwk: JWKInterface) {
     super('ArweavePrivateKey');
     this.#key = jwk;
+    Object.freeze(this);
   }
 
   getPublicKey() {
