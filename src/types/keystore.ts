@@ -28,22 +28,22 @@ export type KeyStoreSnapshot = KeyStoreSnapshot.Type;
 export type KeyStoreSnapshotMarked = KeyStoreSnapshot.Masked;
 
 namespace KeyStoreSnapshot {
-  export type Type = Snapshot & (HDSnapshot | ArweaveSnapshot);
+  export type Type = HDSnapshot | PrivateKeySnapshot;
   export type Masked = Pick<Type, 'version' | 'type' | 'hash'> & Metadata;
 
-  interface Snapshot {
+  interface BaseSnapshot {
     hash: string;
     pairs: ReadonlyArray<KeyPair>;
     meta: Readonly<Metadata>;
   }
 
-  interface HDSnapshot {
+  interface HDSnapshot extends BaseSnapshot {
     version: 1;
     type: KeyStoreType.HD;
     crypto: KeyStore;
   }
 
-  interface ArweaveSnapshot {
+  interface PrivateKeySnapshot extends BaseSnapshot {
     version: 1;
     type: KeyStoreType.HD;
     key: JsonWebKey;
