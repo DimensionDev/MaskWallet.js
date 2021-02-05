@@ -11,13 +11,13 @@ export interface KeyPair {
   extPubKey?: string; // extended public key
 }
 
-export enum KeyStoreSource {
+export const enum KeyStoreSource {
   Mnemonic = 'Mnemonic',
   PrivateKey = 'PrivateKey',
   KeyStore = 'KeyStore',
 }
 
-export enum KeyStoreType {
+export const enum KeyStoreType {
   HDKeyStore = 'HDKeyStore',
   ArweaveKeyStore = 'ArweaveKeyStore',
 }

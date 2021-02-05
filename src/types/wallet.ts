@@ -1,11 +1,11 @@
 import { KeyStore } from '../crypto-suite';
 import { KeyPair, KeyStoreSnapshot, KeyStoreSource, KeyStoreType } from './keystore';
 
-export enum UnlockKeyType {
+export const enum UnlockKeyType {
   Password = 'Password',
 }
 
-export enum ChainType {
+export const enum ChainType {
   Ethereum = 'Ethereum',
   BitcoinCash = 'BitcoinCash',
   Substrate = 'Substrate',

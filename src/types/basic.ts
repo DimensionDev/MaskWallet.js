@@ -1,4 +1,4 @@
-export enum CurveType {
+export const enum CurveType {
   SECP256k1 = 'SECP256k1',
   ED25519 = 'ED25519',
   ED25519Blake2bNano = 'ED25519Blake2bNano',
@@ -7,7 +7,7 @@ export enum CurveType {
   NIST256p1 = 'NIST256p1',
 }
 
-export enum KeyType {
+export const enum KeyType {
   Mnemonic = 'Mnemonic',
   PrivateKey = 'PrivateKey',
   PublicKey = 'PublicKey',
