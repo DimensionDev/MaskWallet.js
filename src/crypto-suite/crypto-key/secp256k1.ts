@@ -48,6 +48,7 @@ export class SECP256k1PrivateKey extends DeterministicPrivateKey {
   private constructor(key: Buffer) {
     super();
     this.#key = key;
+    Object.freeze(this);
   }
 
   getPublicKey(): SECP256k1PublicKey {

@@ -8,6 +8,16 @@
   "scripts": {
     "test": "mocha"
   },
+  "dependencies": {
+    "bech32": "^1.1.4",
+    "bip32": "^2.0.6",
+    "bip39": "^3.0.3",
+    "buffer": "^6.0.3",
+    "elliptic": "^6.5.4",
+    "punycode": "^2.1.1",
+    "secp256k1": "^4.0.2",
+    "sha3": "^2.1.4"
+  },
   "devDependencies": {
     "@types/chai": "^4.2.14",
     "@types/elliptic": "^6.4.12",
@@ -33,16 +43,5 @@
   },
   "engines": {
     "node": ">= 15"
-  },
-  "dependencies": {
-    "bech32": "^1.1.4",
-    "bip32": "^2.0.6",
-    "bip39": "^3.0.3",
-    "buffer": "^6.0.3",
-    "elliptic": "^6.5.4",
-    "punycode": "^2.1.1",
-    "secp256k1": "^4.0.2",
-    "sha3": "^2.1.4",
-    "tiny-secp256k1": "^1.1.6"
   }
 }
