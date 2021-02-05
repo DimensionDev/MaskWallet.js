@@ -17,6 +17,11 @@ export enum KeyStoreSource {
   KeyStore = 'KeyStore',
 }
 
+export enum KeyStoreType {
+  HDKeyStore = 'HDKeyStore',
+  ArweaveKeyStore = 'ArweaveKeyStore',
+}
+
 export type KeyStoreSnapshot = KeyStoreSnapshot.Type;
 
 export type KeyStoreSnapshotMarked = KeyStoreSnapshot.Masked;
@@ -33,13 +38,13 @@ namespace KeyStoreSnapshot {
 
   interface HDSnapshot {
     version: 1;
-    type: 'hd';
+    type: KeyStoreType.HDKeyStore;
     crypto: KeyStore;
   }
 
   interface ArweaveSnapshot {
     version: 1;
-    type: 'arweave';
+    type: KeyStoreType.ArweaveKeyStore;
     key: JsonWebKey;
   }
 

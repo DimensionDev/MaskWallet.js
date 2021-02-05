@@ -1,29 +1,29 @@
 import { assertPlainObject, assertSnapshot } from '../asserts';
 import { CoinInfo } from '../coin-registry';
-import { CryptoKey, PrivateKey, PublicKey } from '../crypto-suite';
-import { WalletError } from '../errors';
-import { ImportKeyStoreParams, KeyPair, KeyStoreSnapshot, KeyType, UnlockKeyType } from '../types';
+import { CryptoKey, KeyStore, PrivateKey, PublicKey } from '../crypto-suite';
+import { Error } from '../errors';
+import { ImportKeyStoreParams, KeyPair, KeyStoreSnapshot, KeyStoreType, KeyType, UnlockKeyType } from '../types';
 
 type UnlockedStore = readonly [UnlockKeyType, string];
 
 export class HDKeyStore {
   #store: UnlockedStore | null = null;
   #hash: KeyStoreSnapshot['hash'];
-  #crypto: KeyStoreSnapshot['crypto'];
+  #crypto: KeyStore;
   #meta: KeyStoreSnapshot['meta'];
   #pairs: KeyStoreSnapshot['pairs'];
 
   static async create(params: ImportKeyStoreParams): Promise<HDKeyStore> {
     assertPlainObject(params, '`params` parameter');
-    if (params.type !== 'hd') {
+    if (params.type !== KeyStoreType.HDKeyStore) {
       throw new Error('`.kind` must be is HDKeyStore');
     }
-    throw new WalletError('not implemented');
+    throw new Error('not implemented');
   }
 
   constructor(snapshot: Readonly<KeyStoreSnapshot>) {
     assertSnapshot(snapshot);
-    if (snapshot.type !== 'hd') {
+    if (snapshot.type !== KeyStoreType.HDKeyStore) {
       throw new Error('unsupported snapshot type');
     }
     this.#hash = snapshot.hash;
@@ -50,36 +50,36 @@ export class HDKeyStore {
 
   private assertUnlocked() {
     if (this.isLocked()) {
-      throw new WalletError('This key store need unlock.');
+      throw new Error('This key store need unlock.');
     }
   }
   // #endregion
 
   async derive(info: CoinInfo): Promise<KeyPair> {
     this.assertUnlocked();
-    throw new WalletError('not implemented');
+    throw new Error('not implemented');
   }
 
   async find(type: KeyType.PublicKey, symbol: string, address: string, path?: string): Promise<PublicKey>;
   async find(type: KeyType.PrivateKey, symbol: string, address: string, path?: string): Promise<PrivateKey>;
   async find(type: KeyType, symbol: string, address: string, path?: string): Promise<CryptoKey> {
     if (type !== KeyType.PublicKey) this.assertUnlocked();
-    throw new WalletError('not implemented');
+    throw new Error('not implemented');
   }
 
   async exportMnemonic(): Promise<string> {
     this.assertUnlocked();
-    throw new WalletError('not implemented');
+    throw new Error('not implemented');
   }
 
   async exportPrivateKey(coin: string, mainAddress: string, path?: string): Promise<string> {
     this.assertUnlocked();
-    throw new WalletError('not implemented');
+    throw new Error('not implemented');
   }
 
   async deriveKey(info: CoinInfo): Promise<KeyPair> {
     this.assertUnlocked();
-    throw new WalletError('not implemented');
+    throw new Error('not implemented');
   }
 
   getKeyPair(symbol: string, address: string): Readonly<KeyPair | undefined> {
@@ -93,12 +93,12 @@ export class HDKeyStore {
 
   async sign(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
     this.assertUnlocked();
-    throw new WalletError('not implemented');
+    throw new Error('not implemented');
   }
 
   async signRecoverableHash(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
     this.assertUnlocked();
-    throw new WalletError('not implemented');
+    throw new Error('not implemented');
   }
 
   get keyHash() {
@@ -108,7 +108,7 @@ export class HDKeyStore {
   toJSON(): Readonly<KeyStoreSnapshot> {
     return Object.freeze({
       version: 1,
-      type: 'hd',
+      type: KeyStoreType.HDKeyStore,
       hash: this.#hash,
       pairs: this.#pairs,
       crypto: this.#crypto,

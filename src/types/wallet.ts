@@ -1,5 +1,5 @@
 import { KeyStore } from '../crypto-suite';
-import { KeyPair, KeyStoreSnapshot, KeyStoreSource } from './keystore';
+import { KeyPair, KeyStoreSnapshot, KeyStoreSource, KeyStoreType } from './keystore';
 
 export enum UnlockKeyType {
   Password = 'Password',
@@ -19,7 +19,7 @@ namespace CreateKeyStoreParams {
   export type Type = HDKeyStore;
 
   interface HDKeyStore {
-    type: 'hd';
+    type: KeyStoreType.HDKeyStore;
     source: KeyStoreSource.Mnemonic;
     name?: string;
     password: string;
@@ -45,7 +45,7 @@ namespace ImportKeyStoreParams {
   export type Type = Mnemonic | KeyStoreJSON | PrivateKey;
 
   interface General {
-    type: 'hd';
+    type: KeyStoreType.HDKeyStore;
     name: string;
     password: string;
     passwordHint?: string;
@@ -78,7 +78,7 @@ namespace ExportKeyStoreParams {
   export type Type = Mnemonic | PrivateKey;
 
   interface General {
-    type: 'hd';
+    type: KeyStoreType.HDKeyStore;
     hash: KeyStoreSnapshot['hash'];
     password: string;
   }
