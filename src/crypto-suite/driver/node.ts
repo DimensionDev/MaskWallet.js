@@ -1,7 +1,7 @@
 import crypto from 'crypto';
 
 declare module 'crypto' {
-  export var webcrypto: typeof crypto;
+  export var webcrypto: typeof window.crypto;
 }
 
 export default crypto.webcrypto;
