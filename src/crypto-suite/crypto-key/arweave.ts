@@ -37,6 +37,9 @@ export class ArweavePrivateKey extends PrivateKey<Transaction, void> {
   }
 
   sign(transaction: Transaction) {
+    if (!(transaction instanceof Transaction)) {
+      throw new Error('The `transaction` object not is Arweave Transaction');
+    }
     return arweave.transactions.sign(transaction, this.#key);
   }
 
