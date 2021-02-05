@@ -27,7 +27,7 @@ export type KeyStoreSnapshot = KeyStoreSnapshot.Type;
 
 export type KeyStoreSnapshotMasked = KeyStoreSnapshot.Masked;
 
-namespace KeyStoreSnapshot {
+export namespace KeyStoreSnapshot {
   export type Type = HDSnapshot | PrivateKeySnapshot;
   export type Masked = Pick<Type, 'version' | 'type' | 'hash'> & Metadata;
 
@@ -37,19 +37,19 @@ namespace KeyStoreSnapshot {
     meta: Readonly<Metadata>;
   }
 
-  interface HDSnapshot extends BaseSnapshot {
+  export interface HDSnapshot extends BaseSnapshot {
     version: 1;
     type: KeyStoreType.HD;
     crypto: KeyStore;
   }
 
-  interface PrivateKeySnapshot extends BaseSnapshot {
+  export interface PrivateKeySnapshot extends BaseSnapshot {
     version: 1;
     type: KeyStoreType.PrivateKey;
     key: JsonWebKey;
   }
 
-  interface Metadata {
+  export interface Metadata {
     name: string;
     source: KeyStoreSource;
     timestamp: Date;

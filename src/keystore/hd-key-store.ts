@@ -1,17 +1,11 @@
 import { assertPlainObject, assertSnapshot } from '../asserts';
 import { CoinInfo } from '../coin-registry';
 import { CryptoKey, KeyStore, PrivateKey, PublicKey } from '../crypto-suite';
-import { ChainType, ImportKeyStoreParams, KeyPair, KeyStoreSnapshot, KeyStoreType, KeyType, UnlockKeyType } from '../types';
+import { ChainType, ImportKeyStoreParams, KeyPair, KeyStoreSnapshot, KeyStoreSource, KeyStoreType, KeyType, UnlockKeyType } from '../types';
 
 type UnlockedStore = readonly [UnlockKeyType, string];
 
-export class HDKeyStore {
-  #store: UnlockedStore | null = null;
-  #hash: KeyStoreSnapshot['hash'];
-  #crypto: KeyStore;
-  #meta: KeyStoreSnapshot['meta'];
-  #pairs: KeyStoreSnapshot['pairs'];
-
+export class HDKeyStore implements KeyStoreSnapshot.Metadata {
   static async create(params: ImportKeyStoreParams): Promise<HDKeyStore> {
     assertPlainObject(params, '`params` parameter');
     if (params.type !== KeyStoreType.HD) {
@@ -20,15 +14,31 @@ export class HDKeyStore {
     throw new Error('not implemented');
   }
 
+  #store: UnlockedStore | null = null;
+
+  hash: KeyStoreSnapshot['hash'];
+  crypto: KeyStore;
+  pairs: KeyStoreSnapshot['pairs'];
+
+  name: string;
+  source: KeyStoreSource;
+  timestamp: Date;
+  remark?: string;
+  passwordHint?: string;
+
   constructor(snapshot: KeyStoreSnapshot) {
     assertSnapshot(snapshot);
     if (snapshot.type !== KeyStoreType.HD) {
       throw new Error('unsupported snapshot type');
     }
-    this.#hash = snapshot.hash;
-    this.#crypto = { ...snapshot.crypto };
-    this.#meta = { ...snapshot.meta };
-    this.#pairs = Array.from(snapshot.pairs).map(cloneKeyPair);
+    this.hash = snapshot.hash;
+    this.crypto = { ...snapshot.crypto };
+    this.name = snapshot.meta.name;
+    this.source = snapshot.meta.source;
+    this.timestamp = snapshot.meta.timestamp;
+    this.remark = snapshot.meta.remark;
+    this.passwordHint = snapshot.meta.passwordHint;
+    this.pairs = Array.from(snapshot.pairs).map(cloneKeyPair);
     Object.freeze(this);
   }
 
@@ -82,12 +92,12 @@ export class HDKeyStore {
   }
 
   getKeyPair(chainType: ChainType, address: string): Readonly<KeyPair | undefined> {
-    const pair = this.#pairs.find((pair) => pair.chainType === chainType && pair.address === address);
+    const pair = this.pairs.find((pair) => pair.chainType === chainType && pair.address === address);
     return pair ? cloneKeyPair(pair) : undefined;
   }
 
   getAllKeyPairs(): ReadonlyArray<KeyPair> {
-    return Object.freeze(Array.from(this.#pairs).map(cloneKeyPair));
+    return Object.freeze(Array.from(this.pairs).map(cloneKeyPair));
   }
 
   async sign(source: BufferSource, chainType: ChainType, address: string, path?: string): Promise<string> {
@@ -101,18 +111,25 @@ export class HDKeyStore {
   }
 
   get keyHash() {
-    return this.#hash;
+    return this.hash;
   }
 
   toJSON(): Readonly<KeyStoreSnapshot> {
-    return Object.freeze({
+    const snapshot: KeyStoreSnapshot = {
       version: 1,
       type: KeyStoreType.HD,
-      hash: this.#hash,
-      pairs: this.#pairs,
-      crypto: this.#crypto,
-      meta: this.#meta,
-    });
+      hash: this.hash,
+      crypto: this.crypto,
+      pairs: Array.from(this.pairs),
+      meta: {
+        name: this.name,
+        source: this.source,
+        timestamp: new Date(this.timestamp),
+        remark: this.remark,
+        passwordHint: this.passwordHint,
+      },
+    };
+    return Object.freeze(snapshot);
   }
 
   get [Symbol.toStringTag]() {
