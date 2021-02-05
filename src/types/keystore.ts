@@ -1,8 +1,9 @@
 import { KeyStore } from '../crypto-suite';
 import { CurveType } from './basic';
+import { ChainType } from './wallet';
 
 export interface KeyPair {
-  coin: string;
+  chainType: ChainType;
   address: string;
   derivationPath?: string;
   curve?: CurveType;

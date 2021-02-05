@@ -1,6 +1,5 @@
 import { assertFrozen, assertPlainObject, assertSnapshot } from '../asserts';
 import { CoinInfo } from '../coin-registry';
-import { WalletError } from '../errors';
 import { KeyStoreAgent, KeyStoreSnapshot, KeyType, SignParams } from '../types';
 
 export class HDWallet {
@@ -17,24 +16,24 @@ export class HDWallet {
     assertPlainObject(info, '`info` parameter');
     const snapshot = await this.#registry.getKeyStore(hash);
     assertSnapshot(snapshot, '`snapshot`');
-    throw new WalletError('not implemented');
+    throw new Error('not implemented');
   }
 
   async verify(hash: KeyStoreSnapshot['hash'], password: string): Promise<boolean> {
     const snapshot = await this.#registry.getKeyStore(hash);
     assertSnapshot(snapshot, 'snapshot');
-    throw new WalletError('not implemented');
+    throw new Error('not implemented');
   }
 
   async exists(type: KeyType.Mnemonic, mnemonic: string): Promise<boolean>;
   async exists(type: KeyType.PrivateKey, key: string): Promise<boolean>;
   async exists(type: KeyType, value: string): Promise<boolean> {
-    throw new WalletError('not implemented');
+    throw new Error('not implemented');
   }
 
   async signTransaction(params: SignParams) {
     assertPlainObject(params, '`params` parameter');
-    throw new WalletError('not implemented');
+    throw new Error('not implemented');
   }
   // #endregion
 

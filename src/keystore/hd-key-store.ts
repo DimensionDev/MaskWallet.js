@@ -1,8 +1,7 @@
 import { assertPlainObject, assertSnapshot } from '../asserts';
 import { CoinInfo } from '../coin-registry';
 import { CryptoKey, KeyStore, PrivateKey, PublicKey } from '../crypto-suite';
-import { Error } from '../errors';
-import { ImportKeyStoreParams, KeyPair, KeyStoreSnapshot, KeyStoreType, KeyType, UnlockKeyType } from '../types';
+import { ChainType, ImportKeyStoreParams, KeyPair, KeyStoreSnapshot, KeyStoreType, KeyType, UnlockKeyType } from '../types';
 
 type UnlockedStore = readonly [UnlockKeyType, string];
 
@@ -60,9 +59,9 @@ export class HDKeyStore {
     throw new Error('not implemented');
   }
 
-  async find(type: KeyType.PublicKey, symbol: string, address: string, path?: string): Promise<PublicKey>;
-  async find(type: KeyType.PrivateKey, symbol: string, address: string, path?: string): Promise<PrivateKey>;
-  async find(type: KeyType, symbol: string, address: string, path?: string): Promise<CryptoKey> {
+  async find(type: KeyType.PublicKey, chainType: ChainType, address: string, path?: string): Promise<PublicKey>;
+  async find(type: KeyType.PrivateKey, chainType: ChainType, address: string, path?: string): Promise<PrivateKey>;
+  async find(type: KeyType, chainType: ChainType, address: string, path?: string): Promise<CryptoKey> {
     if (type !== KeyType.PublicKey) this.assertUnlocked();
     throw new Error('not implemented');
   }
@@ -72,7 +71,7 @@ export class HDKeyStore {
     throw new Error('not implemented');
   }
 
-  async exportPrivateKey(coin: string, mainAddress: string, path?: string): Promise<string> {
+  async exportPrivateKey(chainType: ChainType, mainAddress: string, path?: string): Promise<string> {
     this.assertUnlocked();
     throw new Error('not implemented');
   }
@@ -82,8 +81,8 @@ export class HDKeyStore {
     throw new Error('not implemented');
   }
 
-  getKeyPair(symbol: string, address: string): Readonly<KeyPair | undefined> {
-    const pair = this.#pairs.find((pair) => pair.coin === symbol && pair.address === address);
+  getKeyPair(chainType: ChainType, address: string): Readonly<KeyPair | undefined> {
+    const pair = this.#pairs.find((pair) => pair.chainType === chainType && pair.address === address);
     return pair ? cloneKeyPair(pair) : undefined;
   }
 
@@ -91,12 +90,12 @@ export class HDKeyStore {
     return Object.freeze(Array.from(this.#pairs).map(cloneKeyPair));
   }
 
-  async sign(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
+  async sign(source: BufferSource, chainType: ChainType, address: string, path?: string): Promise<string> {
     this.assertUnlocked();
     throw new Error('not implemented');
   }
 
-  async signRecoverableHash(source: BufferSource, symbol: string, address: string, path?: string): Promise<string> {
+  async signRecoverableHash(source: BufferSource, chainType: ChainType, address: string, path?: string): Promise<string> {
     this.assertUnlocked();
     throw new Error('not implemented');
   }
@@ -127,7 +126,7 @@ export function isHDKeyStore(value: object): value is HDKeyStore {
 
 function cloneKeyPair(pair: KeyPair): Readonly<KeyPair> {
   return Object.freeze<KeyPair>({
-    coin: pair.coin,
+    type: pair.type,
     address: pair.address,
     derivationPath: pair.derivationPath,
     curve: pair.curve,
