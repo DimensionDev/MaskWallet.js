@@ -6,6 +6,7 @@
   "license": "MIT",
   "author": "DimensionDev",
   "scripts": {
+    "build": "tsc && tsc -p tsconfig.cjs.json",
     "test": "mocha"
   },
   "dependencies": {

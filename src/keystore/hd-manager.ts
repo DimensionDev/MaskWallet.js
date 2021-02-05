@@ -51,11 +51,7 @@ export class HDKeyStoreManager {
     return this.#registry.setKeyStore(hash, undefined);
   }
 
-  getAllKeyStories() {
-    return this[Symbol.asyncIterator]();
-  }
-
-  async *[Symbol.asyncIterator]() {
+  async *getAllKeyStories(): AsyncGenerator<Readonly<KeyStoreSnapshotMarked>, void, unknown> {
     for await (const hash of this.#registry.hashes()) {
       const store = await this.#registry.getKeyStore(hash);
       if (store === undefined || store.type !== 'hd') {

@@ -6,7 +6,13 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "strict": true,
-    "noImplicitAny": true
+    "noImplicitAny": true,
+    // #region output
+    "outDir": "esm",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
+    // #endregion
   },
   "ts-node": {
     "compilerOptions": {

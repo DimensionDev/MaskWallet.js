@@ -4,7 +4,7 @@ import registry from './registry.json';
 registry.forEach(Object.freeze);
 Object.freeze(registry);
 
-export function getCoinRegistry() {
+export function getCoinRegistry(): ReadonlyArray<CoinInfo> {
   return registry as ReadonlyArray<CoinInfo>;
 }
 
