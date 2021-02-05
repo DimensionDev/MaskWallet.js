@@ -1,5 +1,5 @@
 import { BIP32Interface, fromSeed } from 'bip32';
-import { mnemonicToSeed, validateMnemonic } from 'bip39';
+import { mnemonicToSeed, mnemonicToEntropy } from 'bip39';
 import { publicKeyCreate } from 'secp256k1';
 import { CurveType } from '../../types';
 import { DeterministicPrivateKey, DeterministicPublicKey } from './types';
@@ -27,7 +27,7 @@ export class SECP256k1PrivateKey extends DeterministicPrivateKey {
   }
 
   static async fromMnemonic(path: string, mnemonic: string): Promise<SECP256k1PrivateKey> {
-    validateMnemonic(mnemonic);
+    mnemonicToEntropy(mnemonic); // assert mnemonic is corrent
     const key = fromSeed(await mnemonicToSeed(mnemonic));
     return new this(deriveKeyPair(key, path));
   }

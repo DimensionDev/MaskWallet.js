@@ -53,13 +53,13 @@ export abstract class DeterministicPrivateKey extends PrivateKey implements Dete
   }
 }
 
-export function isPublicKey(key: object, deterministic?: false): key is PublicKey;
+export function isPublicKey(key: object): key is PublicKey;
 export function isPublicKey(key: object, deterministic: true): key is DeterministicPublicKey;
 export function isPublicKey(key: object, deterministic = false) {
   return deterministic ? key instanceof DeterministicPublicKey : key instanceof PublicKey;
 }
 
-export function isPrivateKey(key: object, deterministic?: false): key is PrivateKey;
+export function isPrivateKey(key: object): key is PrivateKey;
 export function isPrivateKey(key: object, deterministic: true): key is DeterministicPrivateKey;
 export function isPrivateKey(key: object, deterministic = false) {
   return deterministic ? key instanceof DeterministicPrivateKey : key instanceof PrivateKey;
