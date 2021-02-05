@@ -14,7 +14,7 @@ export class HDKeyStore {
 
   static async create(params: ImportKeyStoreParams): Promise<HDKeyStore> {
     assertPlainObject(params, '`params` parameter');
-    if (params.type !== KeyStoreType.HDKeyStore) {
+    if (params.type !== KeyStoreType.HD) {
       throw new Error('`.kind` must be is HDKeyStore');
     }
     throw new Error('not implemented');
@@ -22,7 +22,7 @@ export class HDKeyStore {
 
   constructor(snapshot: Readonly<KeyStoreSnapshot>) {
     assertSnapshot(snapshot);
-    if (snapshot.type !== KeyStoreType.HDKeyStore) {
+    if (snapshot.type !== KeyStoreType.HD) {
       throw new Error('unsupported snapshot type');
     }
     this.#hash = snapshot.hash;
@@ -107,7 +107,7 @@ export class HDKeyStore {
   toJSON(): Readonly<KeyStoreSnapshot> {
     return Object.freeze({
       version: 1,
-      type: KeyStoreType.HDKeyStore,
+      type: KeyStoreType.HD,
       hash: this.#hash,
       pairs: this.#pairs,
       crypto: this.#crypto,

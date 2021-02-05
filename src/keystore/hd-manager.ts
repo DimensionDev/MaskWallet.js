@@ -55,7 +55,7 @@ export class HDKeyStoreManager {
   async *getAllKeyStories(): AsyncGenerator<Readonly<KeyStoreSnapshotMarked>, void, unknown> {
     for await (const hash of this.#registry.hashes()) {
       const store = await this.#registry.getKeyStore(hash);
-      if (store === undefined || store.type !== KeyStoreType.HDKeyStore) {
+      if (store === undefined || store.type !== KeyStoreType.HD) {
         continue;
       }
       yield Object.freeze<KeyStoreSnapshotMarked>({

@@ -19,7 +19,7 @@ namespace CreateKeyStoreParams {
   export type Type = HDKeyStore;
 
   interface HDKeyStore {
-    type: KeyStoreType.HDKeyStore;
+    type: KeyStoreType.HD;
     source: KeyStoreSource.Mnemonic;
     name?: string;
     password: string;
@@ -45,7 +45,7 @@ namespace ImportKeyStoreParams {
   export type Type = Mnemonic | KeyStoreJSON | PrivateKey;
 
   interface General {
-    type: KeyStoreType.HDKeyStore;
+    type: KeyStoreType.HD;
     name: string;
     password: string;
     passwordHint?: string;
@@ -78,7 +78,7 @@ namespace ExportKeyStoreParams {
   export type Type = Mnemonic | PrivateKey;
 
   interface General {
-    type: KeyStoreType.HDKeyStore;
+    type: KeyStoreType.HD;
     hash: KeyStoreSnapshot['hash'];
     password: string;
   }
