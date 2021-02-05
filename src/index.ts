@@ -1,8 +1,8 @@
-import { assertPlainObject } from 'asserts';
-import { HDKeyStoreManager, HDWallet } from 'keystore';
-import { KeyStoreAgent, KeyStoreRegistry } from 'types';
+import { assertPlainObject } from './asserts';
+import { HDKeyStoreManager, HDWallet } from './keystore';
+import { KeyStoreAgent, KeyStoreRegistry } from './types';
 
-export { getCoinRegistry } from 'coin-registry';
+export { getCoinRegistry } from './coin-registry';
 
 let wallet: HDWallet | undefined;
 let keyStore: HDKeyStoreManager | undefined;

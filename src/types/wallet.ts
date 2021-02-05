@@ -1,9 +1,8 @@
-import { KeyStore } from 'crypto-suite';
+import { KeyStore } from '../crypto-suite';
 import { KeyPair, KeyStoreSnapshot, KeyStoreSource } from './keystore';
 
 export enum UnlockKeyType {
   Password = 'Password',
-  DeriverdKey = 'DeriverdKey',
 }
 
 export enum ChainType {

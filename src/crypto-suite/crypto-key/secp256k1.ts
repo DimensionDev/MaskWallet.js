@@ -1,9 +1,9 @@
 import { BIP32Interface, fromSeed } from 'bip32';
 import { mnemonicToSeed, validateMnemonic } from 'bip39';
-import { sha256 } from 'crypto-suite/algorithm';
+import { sha256 } from '../algorithm';
 import { ec as Elliptic } from 'elliptic';
 import { ecdsaSign, publicKeyCreate } from 'secp256k1';
-import { CurveType } from 'types';
+import { CurveType } from '../../types';
 import { DeterministicPrivateKey, DeterministicPublicKey } from './types';
 
 export class SECP256k1PublicKey extends DeterministicPublicKey {

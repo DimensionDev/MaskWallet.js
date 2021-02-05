@@ -1,7 +1,7 @@
-import { assertFrozen, assertPlainObject, assertSnapshot } from 'asserts';
-import { CoinInfo } from 'coin-registry';
-import { WalletError } from 'errors';
-import { KeyStoreAgent, KeyStoreSnapshot, KeyType, SignParams } from 'types';
+import { assertFrozen, assertPlainObject, assertSnapshot } from '../asserts';
+import { CoinInfo } from '../coin-registry';
+import { WalletError } from '../errors';
+import { KeyStoreAgent, KeyStoreSnapshot, KeyType, SignParams } from '../types';
 
 export class HDWallet {
   #registry: Readonly<KeyStoreAgent>;

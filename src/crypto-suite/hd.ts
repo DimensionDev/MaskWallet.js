@@ -1,5 +1,5 @@
-import { assertPlainObject } from 'asserts';
-import { fromHexString } from 'utils/hex';
+import { assertPlainObject } from '../asserts';
+import { fromHexString } from '../utils/hex';
 import crypto, { scrypt } from './driver';
 import { CryptoSuiteError, KeyStore } from './types';
 

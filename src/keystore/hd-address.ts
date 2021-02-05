@@ -1,5 +1,5 @@
-import { CoinInfo } from 'coin-registry';
-import { PublicKey } from 'crypto-suite';
+import { CoinInfo } from '../coin-registry';
+import { PublicKey } from '../crypto-suite';
 
 export class HDAddress {
   public static isValid(address: string, info: CoinInfo) {

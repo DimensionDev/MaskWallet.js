@@ -1,4 +1,4 @@
-import { CurveType } from 'types';
+import { CurveType } from '../../types';
 
 export type CryptoKey = PublicKey | PrivateKey;
 

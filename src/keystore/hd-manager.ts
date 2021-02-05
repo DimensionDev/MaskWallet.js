@@ -1,6 +1,6 @@
-import { assertPlainObject } from 'asserts';
-import { WalletError } from 'errors';
-import { HDKeyStore } from 'keystore/hd-key-store';
+import { assertPlainObject } from '../asserts';
+import { WalletError } from '../errors';
+import { HDKeyStore } from '../keystore/hd-key-store';
 import {
   CreateKeyStoreParams,
   CreateKeyStoreResult,
@@ -11,7 +11,7 @@ import {
   KeyStoreSnapshotMarked,
   KeyStoreSource,
   UnlockKeyType,
-} from 'types';
+} from '../types';
 
 export class HDKeyStoreManager {
   #registry: KeyStoreAgent;
@@ -40,10 +40,7 @@ export class HDKeyStoreManager {
     await this.#registry.assertKeyStoreAvailable(params.hash);
     const snapshot = await this.#registry.getKeyStore(params.hash);
     const store = new HDKeyStore(snapshot!);
-    if (params.source === KeyStoreSource.Mnemonic) {
-      await store.unlock(UnlockKeyType.DeriverdKey, params.mnemonic);
-      return store.exportMnemonic();
-    } else if (params.source === KeyStoreSource.PrivateKey) {
+    if (params.source === KeyStoreSource.PrivateKey) {
       await store.unlock(UnlockKeyType.Password, params.password);
       return store.exportPrivateKey(params.chainType, params.hash);
     }
