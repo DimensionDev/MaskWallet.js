@@ -13,6 +13,6 @@ export abstract class HDAddress {
   abstract get [Symbol.toStringTag](): string;
 }
 
-export function isHDAddress(value: object): value is HDAddress {
-  return Reflect.get(value, Symbol.toStringTag) === 'HDAddress';
+export function isHDAddress(input: object): input is HDAddress {
+  return input instanceof HDAddress;
 }
