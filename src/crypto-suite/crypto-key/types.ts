@@ -15,8 +15,18 @@ export abstract class PrivateKey extends PublicKey {
 }
 
 export abstract class DeterministicPublicKey extends PublicKey {
-  abstract get curve(): CurveType;
+  readonly curve: CurveType;
+
+  constructor(curve: CurveType) {
+    super();
+    this.curve = curve;
+  }
+
   abstract derivePath(path: string): this;
+
+  get [Symbol.toStringTag]() {
+    return `${this.curve}PublicKey`;
+  }
 }
 
 export abstract class DeterministicPrivateKey extends PrivateKey implements DeterministicPublicKey {
@@ -28,7 +38,29 @@ export abstract class DeterministicPrivateKey extends PrivateKey implements Dete
     throw new Error('The Method not implemented.');
   }
 
-  abstract get curve(): CurveType;
+  readonly curve: CurveType;
+
+  constructor(curve: CurveType) {
+    super();
+    this.curve = curve;
+  }
+
   abstract getPublicKey(): DeterministicPublicKey;
   abstract derivePath(path: string): this;
+
+  get [Symbol.toStringTag]() {
+    return `${this.curve}PrivateKey`;
+  }
+}
+
+export function isPublicKey(key: object, deterministic?: false): key is PublicKey;
+export function isPublicKey(key: object, deterministic: true): key is DeterministicPublicKey;
+export function isPublicKey(key: object, deterministic = false) {
+  return deterministic ? key instanceof DeterministicPublicKey : key instanceof PublicKey;
+}
+
+export function isPrivateKey(key: object, deterministic?: false): key is PrivateKey;
+export function isPrivateKey(key: object, deterministic: true): key is DeterministicPrivateKey;
+export function isPrivateKey(key: object, deterministic = false) {
+  return deterministic ? key instanceof DeterministicPrivateKey : key instanceof PrivateKey;
 }

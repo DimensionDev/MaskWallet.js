@@ -6,24 +6,15 @@ import { DeterministicPrivateKey, DeterministicPublicKey } from './types';
 
 export class SECP256k1PublicKey extends DeterministicPublicKey {
   constructor(key: string | Uint8Array) {
-    super();
+    super(CurveType.SECP256k1);
   }
 
   derivePath(path: string): this {
     throw new Error('Method not implemented.');
   }
 
-  /** hex encoded */
   toString(): string {
     throw new Error('Method not implemented.');
-  }
-
-  get curve() {
-    return CurveType.SECP256k1;
-  }
-
-  get [Symbol.toStringTag]() {
-    return 'SECP256k1PublicKey';
   }
 }
 
@@ -39,7 +30,7 @@ export class SECP256k1PrivateKey extends DeterministicPrivateKey {
   }
 
   private constructor(key: Buffer) {
-    super();
+    super(CurveType.SECP256k1);
     this.#key = key;
     Object.freeze(this);
   }
@@ -60,17 +51,8 @@ export class SECP256k1PrivateKey extends DeterministicPrivateKey {
     throw new Error('Method not implemented.');
   }
 
-  /** hex encoded */
   toString(): string {
     return this.#key.toString('hex');
-  }
-
-  get curve() {
-    return CurveType.SECP256k1;
-  }
-
-  get [Symbol.toStringTag]() {
-    return 'SECP256k1PrivateKey';
   }
 }
 
