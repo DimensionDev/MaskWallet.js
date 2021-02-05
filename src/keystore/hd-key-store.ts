@@ -10,7 +10,7 @@ export class HDKeyStore {
   #hash: KeyStoreSnapshot['hash'];
   #crypto: KeyStore;
   #pairs: KeyPair[];
-  #meta: KeyStoreSnapshot.Metadata;
+  #metadata: KeyStoreSnapshot.Metadata;
 
   static async create(params: ImportKeyStoreParams): Promise<HDKeyStore> {
     assertPlainObject(params, '`params` parameter');
@@ -27,7 +27,7 @@ export class HDKeyStore {
     }
     this.#hash = snapshot.hash;
     this.#crypto = { ...snapshot.crypto };
-    this.#meta = { ...snapshot.meta };
+    this.#metadata = { ...snapshot.meta };
     this.#pairs = Array.from(snapshot.pairs).map(cloneKeyPair);
     Object.freeze(this);
   }
@@ -111,7 +111,7 @@ export class HDKeyStore {
       hash: this.#hash,
       pairs: this.#pairs,
       crypto: this.#crypto,
-      meta: this.#meta,
+      meta: this.#metadata,
     });
   }
 
