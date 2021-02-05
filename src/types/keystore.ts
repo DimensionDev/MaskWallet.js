@@ -23,27 +23,32 @@ export const enum KeyStoreType {
   PrivateKey = 'PrivateKey',
 }
 
-export type KeyStoreSnapshot = KeyStoreSnapshot.Type;
+export type KeyStoreSnapshot = KeyStoreSnapshot.HD | KeyStoreSnapshot.PrivateKey;
 
-export type KeyStoreSnapshotMasked = KeyStoreSnapshot.Masked;
+export type KeyStoreSnapshotMasked = Pick<KeyStoreSnapshot, 'version' | 'type' | 'hash'> & KeyStoreSnapshot.Metadata;
+
+export function isHDSnapshot(value: object): value is KeyStoreSnapshot.HD {
+  return Reflect.get(value, 'type') === KeyStoreType.HD;
+}
+
+export function isPrivateKeySnapshot(value: object): value is KeyStoreSnapshot.PrivateKey {
+  return Reflect.get(value, 'type') === KeyStoreType.PrivateKey;
+}
 
 export namespace KeyStoreSnapshot {
-  export type Type = HDSnapshot | PrivateKeySnapshot;
-  export type Masked = Pick<Type, 'version' | 'type' | 'hash'> & Metadata;
-
   interface BaseSnapshot {
     hash: string;
     pairs: ReadonlyArray<KeyPair>;
     meta: Readonly<Metadata>;
   }
 
-  export interface HDSnapshot extends BaseSnapshot {
+  export interface HD extends BaseSnapshot {
     version: 1;
     type: KeyStoreType.HD;
     crypto: KeyStore;
   }
 
-  export interface PrivateKeySnapshot extends BaseSnapshot {
+  export interface PrivateKey extends BaseSnapshot {
     version: 1;
     type: KeyStoreType.PrivateKey;
     key: JsonWebKey;
