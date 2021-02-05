@@ -22,11 +22,14 @@ export class SECP256k1PrivateKey extends DeterministicPrivateKey {
   #key: Buffer;
 
   static async fromSeed(path: string, seed: Buffer): Promise<SECP256k1PrivateKey> {
-    return new this(deriveKeyPair(fromSeed(seed), path));
+    const key = fromSeed(seed);
+    return new this(deriveKeyPair(key, path));
   }
 
   static async fromMnemonic(path: string, mnemonic: string): Promise<SECP256k1PrivateKey> {
-    return new this(deriveKeyPair(await deriveMasterKey(mnemonic), path));
+    validateMnemonic(mnemonic);
+    const key = fromSeed(await mnemonicToSeed(mnemonic));
+    return new this(deriveKeyPair(key, path));
   }
 
   private constructor(key: Buffer) {
@@ -54,11 +57,6 @@ export class SECP256k1PrivateKey extends DeterministicPrivateKey {
   toString(): string {
     return this.#key.toString('hex');
   }
-}
-
-async function deriveMasterKey(mnemonic: string): Promise<BIP32Interface> {
-  validateMnemonic(mnemonic);
-  return fromSeed(await mnemonicToSeed(mnemonic));
 }
 
 function deriveKeyPair(masterKey: BIP32Interface, path: string) {
