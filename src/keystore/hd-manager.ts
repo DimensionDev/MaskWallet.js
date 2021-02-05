@@ -8,7 +8,7 @@ import {
   ImportKeyStoreParams,
   KeyStoreAgent,
   KeyStoreSnapshot,
-  KeyStoreSnapshotMarked,
+  KeyStoreSnapshotMasked,
   KeyStoreSource,
   KeyStoreType,
   UnlockKeyType,
@@ -52,13 +52,13 @@ export class HDKeyStoreManager {
     return this.#registry.setKeyStore(hash, undefined);
   }
 
-  async *getAllKeyStories(): AsyncGenerator<Readonly<KeyStoreSnapshotMarked>, void, unknown> {
+  async *getAllKeyStories(): AsyncGenerator<Readonly<KeyStoreSnapshotMasked>, void, unknown> {
     for await (const hash of this.#registry.hashes()) {
       const store = await this.#registry.getKeyStore(hash);
       if (store === undefined || store.type !== KeyStoreType.HD) {
         continue;
       }
-      yield Object.freeze<KeyStoreSnapshotMarked>({
+      yield Object.freeze<KeyStoreSnapshotMasked>({
         version: store.version,
         type: store.type,
         hash: store.hash,

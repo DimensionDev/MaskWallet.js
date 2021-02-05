@@ -20,7 +20,7 @@ export class HDKeyStore {
     throw new Error('not implemented');
   }
 
-  constructor(snapshot: Readonly<KeyStoreSnapshot>) {
+  constructor(snapshot: KeyStoreSnapshot) {
     assertSnapshot(snapshot);
     if (snapshot.type !== KeyStoreType.HD) {
       throw new Error('unsupported snapshot type');
@@ -126,12 +126,12 @@ export function isHDKeyStore(value: object): value is HDKeyStore {
 
 function cloneKeyPair(pair: KeyPair): Readonly<KeyPair> {
   return Object.freeze<KeyPair>({
-    type: pair.type,
+    chainType: pair.chainType,
     address: pair.address,
     derivationPath: pair.derivationPath,
     curve: pair.curve,
     network: pair.network,
     segWit: pair.segWit,
-    extPubKey: pair.extPubKey,
+    extendedPublicKey: pair.extendedPublicKey,
   });
 }

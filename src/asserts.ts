@@ -1,4 +1,4 @@
-import { KeyStoreSnapshot } from './types';
+import { KeyStoreSnapshot, KeyStoreType } from './types';
 
 export function assertFrozen<T>(input: T, message = '.input'): asserts input is Readonly<NonNullable<T>> {
   if (!Object.isFrozen(input)) {
@@ -13,10 +13,14 @@ export function assertPlainObject<T>(input: T, message = '.input'): asserts inpu
   }
 }
 
-export function assertSnapshot(snapshot: KeyStoreSnapshot | undefined, message = '.snapshot') {
+export function assertSnapshot(snapshot: KeyStoreSnapshot | undefined, message = '.snapshot'): asserts snapshot is Readonly<KeyStoreSnapshot> {
   assertFrozen(snapshot, message);
   assertPlainObject(snapshot, message);
   assertPlainObject(snapshot.meta, message);
-  assertPlainObject(snapshot.crypto, message);
+  if (snapshot.type === KeyStoreType.HD) {
+    assertPlainObject(snapshot.crypto, message);
+  } else if (snapshot.type === KeyStoreType.PrivateKey) {
+    assertPlainObject(snapshot.key, message);
+  }
   assertPlainObject(snapshot.pairs, message);
 }

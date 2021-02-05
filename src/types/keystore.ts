@@ -9,7 +9,7 @@ export interface KeyPair {
   curve?: CurveType;
   network?: string;
   segWit?: string;
-  extPubKey?: string; // extended public key
+  extendedPublicKey?: string;
 }
 
 export const enum KeyStoreSource {
@@ -25,7 +25,7 @@ export const enum KeyStoreType {
 
 export type KeyStoreSnapshot = KeyStoreSnapshot.Type;
 
-export type KeyStoreSnapshotMarked = KeyStoreSnapshot.Masked;
+export type KeyStoreSnapshotMasked = KeyStoreSnapshot.Masked;
 
 namespace KeyStoreSnapshot {
   export type Type = HDSnapshot | PrivateKeySnapshot;
@@ -45,7 +45,7 @@ namespace KeyStoreSnapshot {
 
   interface PrivateKeySnapshot extends BaseSnapshot {
     version: 1;
-    type: KeyStoreType.HD;
+    type: KeyStoreType.PrivateKey;
     key: JsonWebKey;
   }
 
