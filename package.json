@@ -37,7 +37,6 @@
     "typescript": "^4.1.3"
   },
   "peerDependencies": {
-    "arweave": "^1.10.6",
     "scrypt-js": "^3.0.1"
   },
   "engines": {
