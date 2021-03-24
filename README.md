@@ -3,17 +3,20 @@
 Standalone Multi-chain wallet
 
 - [x] HD Wallet
-  - [ ] SCEP256k1
-  - [ ] Sr25519
-  - [ ] BIP32
 - [ ] Arweave Wallet
   - [ ] Bridge to Arweave SDK
 - [ ] Polkadot Wallet
   - [ ] Bridge to Polkadot SDK
 
-## Chain
+## HD Wallet
 
-- [ ] Ethereum (HD Wallet)
-- [ ] Substrate
-- [ ] BitCoin
-- [ ] FileCoin
+- [x] Structure design
+- Algorithm
+  - [ ] SCEP256k1
+  - [ ] Sr25519
+  - [ ] BIP32
+- Chain
+  - [ ] Ethereum
+  - [ ] Substrate
+  - [ ] BitCoin
+  - [ ] FileCoin
