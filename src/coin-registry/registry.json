@@ -16,7 +16,5 @@
   { "type": "curve", "curve": "SECP256k1", "coin": "ethereum", "derivationPath": "m/44'/60'/0'/0/0", "network": "Ropsten" },
   { "type": "curve", "curve": "SECP256k1", "coin": "ethereum", "derivationPath": "m/44'/60'/0'/0/0", "network": "Rinkeby" },
   { "type": "curve", "curve": "SECP256k1", "coin": "ethereum", "derivationPath": "m/44'/60'/0'/0/0", "network": "Kovan" },
-  { "type": "curve", "curve": "SECP256k1", "coin": "ethereum", "derivationPath": "m/44'/60'/0'/0/0", "network": "Gorli" },
-  { "type": "rsa", "coin": "arweave", "suite": ["RSA-4096", "AES-256-CBC", "SHA-256"], "network": "MainNet" },
-  { "type": "rsa", "coin": "arweave", "suite": ["RSA-4096", "AES-256-CBC", "SHA-384"], "network": "MainNet" }
+  { "type": "curve", "curve": "SECP256k1", "coin": "ethereum", "derivationPath": "m/44'/60'/0'/0/0", "network": "Gorli" }
 ]

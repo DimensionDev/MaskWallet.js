@@ -1,4 +1,3 @@
-import { assertPlainObject } from './asserts';
 import { HDKeyStoreManager, HDWallet } from './keystore';
 import { KeyStoreAgent, KeyStoreRegistry } from './types';
 
@@ -8,7 +7,6 @@ let wallet: HDWallet | undefined;
 let keyStore: HDKeyStoreManager | undefined;
 
 export function setKeyStoreRegistry(registry: KeyStoreRegistry): void {
-  assertPlainObject(registry);
   if (wallet !== undefined || keyStore !== undefined) {
     throw new TypeError('Not allowed');
   }

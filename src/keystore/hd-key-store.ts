@@ -1,4 +1,3 @@
-import { assertPlainObject, assertSnapshot } from '../asserts';
 import { CoinInfo } from '../coin-registry';
 import { CryptoKey, KeyStore, PrivateKey, PublicKey } from '../crypto-suite';
 import { ChainType, ImportKeyStoreParams, isHDSnapshot, KeyPair, KeyStoreSnapshot, KeyStoreType, KeyType, UnlockKeyType } from '../types';
@@ -13,18 +12,13 @@ export class HDKeyStore {
   #metadata: KeyStoreSnapshot.Metadata;
 
   static async create(params: ImportKeyStoreParams): Promise<HDKeyStore> {
-    assertPlainObject(params, '`params` parameter');
     if (params.type !== KeyStoreType.HD) {
       throw new Error('`.type` must be is HDKeyStore');
     }
     throw new Error('not implemented');
   }
 
-  constructor(snapshot: KeyStoreSnapshot) {
-    assertSnapshot(snapshot);
-    if (!isHDSnapshot(snapshot)) {
-      throw new Error('unsupported snapshot type');
-    }
+  constructor(snapshot: KeyStoreSnapshot.HD) {
     this.#hash = snapshot.hash;
     this.#crypto = { ...snapshot.crypto };
     this.#metadata = { ...snapshot.meta };

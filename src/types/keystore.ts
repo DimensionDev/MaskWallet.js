@@ -27,19 +27,19 @@ export type KeyStoreSnapshot = KeyStoreSnapshot.HD | KeyStoreSnapshot.PrivateKey
 
 export type KeyStoreSnapshotMasked = Pick<KeyStoreSnapshot, 'version' | 'type' | 'hash'> & KeyStoreSnapshot.Metadata;
 
-export function isHDSnapshot(value: object): value is KeyStoreSnapshot.HD {
-  return Reflect.get(value, 'type') === KeyStoreType.HD;
+export function isHDSnapshot(value: unknown): value is KeyStoreSnapshot.HD {
+  return (value as KeyStoreSnapshot)?.type === KeyStoreType.HD;
 }
 
-export function isPrivateKeySnapshot(value: object): value is KeyStoreSnapshot.PrivateKey {
-  return Reflect.get(value, 'type') === KeyStoreType.PrivateKey;
+export function isPrivateKeySnapshot(value: unknown): value is KeyStoreSnapshot.PrivateKey {
+  return (value as KeyStoreSnapshot)?.type === KeyStoreType.PrivateKey;
 }
 
 export namespace KeyStoreSnapshot {
   interface BaseSnapshot {
     hash: string;
-    pairs: ReadonlyArray<KeyPair>;
-    meta: Readonly<Metadata>;
+    pairs: KeyPair[];
+    meta: Metadata;
   }
 
   export interface HD extends BaseSnapshot {

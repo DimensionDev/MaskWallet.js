@@ -1,4 +1,3 @@
-import { assertPlainObject } from '../asserts';
 import { fromHexString } from '../utils/hex';
 import crypto, { scrypt } from './driver';
 import { CryptoSuiteError, KeyStore } from './types';
@@ -8,9 +7,6 @@ export class HDCryptoSuite {
   #password: Uint8Array;
 
   static from(store: KeyStore, password: Uint8Array) {
-    assertPlainObject(store, 'store');
-    assertPlainObject(store.cipherparams, 'store.cipherparams');
-    assertPlainObject(store.kdfparams, 'store.kdfparams');
     if (!(store.kdf === 'pbkdf2' || store.kdf === 'scrypt')) {
       throw new CryptoSuiteError('unsupported key store type');
     }
@@ -24,23 +20,23 @@ export class HDCryptoSuite {
   }
 
   async driveKey(password: Uint8Array): Promise<Uint8Array> {
+    const store = this.#store;
     let salt;
     try {
-      salt = fromHexString(this.#store.kdfparams.salt);
+      salt = fromHexString(store.kdfparams.salt);
     } catch (err) {
       throw new CryptoSuiteError('parsing kdfparams.salt failed', err);
     }
-    if (this.#store.kdf === 'pbkdf2' && this.#store.kdfparams.prf === 'hmac-sha256') {
-      const iterations = this.#store.kdfparams.c;
+    if (store.kdf === 'pbkdf2' && store.kdfparams.prf === 'hmac-sha256') {
       const derivedBits = await crypto.subtle.deriveBits(
-        { name: 'PBKDF2', hash: 'SHA-256', salt, iterations },
+        { name: 'PBKDF2', hash: 'SHA-256', salt, iterations: store.kdfparams.c },
         await crypto.subtle.importKey('raw', password, { name: 'PBKDF2' }, false, ['deriveBits']),
         this.#store.kdfparams.dklen
       );
       return new Uint8Array(derivedBits);
-    } else if (this.#store.kdf === 'scrypt') {
-      const n = Math.round(Math.log2(this.#store.kdfparams.n));
-      return scrypt(password, salt, n, this.#store.kdfparams.r, this.#store.kdfparams.p, this.#store.kdfparams.dklen);
+    } else if (store.kdf === 'scrypt') {
+      const n = Math.round(Math.log2(store.kdfparams.n));
+      return scrypt(password, salt, n, store.kdfparams.r, store.kdfparams.p, store.kdfparams.dklen);
     }
     throw new CryptoSuiteError('Unsupported Key Store');
   }

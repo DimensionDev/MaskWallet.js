@@ -1,4 +1,3 @@
-import { assertPlainObject } from '../asserts';
 import { WalletError } from '../errors';
 import { HDKeyStore } from '../keystore/hd-key-store';
 import {
@@ -6,6 +5,7 @@ import {
   CreateKeyStoreResult,
   ExportKeyStoreParams,
   ImportKeyStoreParams,
+  isHDSnapshot,
   KeyStoreAgent,
   KeyStoreSnapshot,
   KeyStoreSnapshotMasked,
@@ -23,12 +23,10 @@ export class HDKeyStoreManager {
   }
 
   async create(params: CreateKeyStoreParams): Promise<CreateKeyStoreResult> {
-    assertPlainObject(params, '`params` parameter');
     throw new WalletError('not implemented');
   }
 
   async import(params: ImportKeyStoreParams) {
-    assertPlainObject(params, '`params` parameter');
     const snapshot = await HDKeyStore.create(params);
     if (!params.overwrite) {
       await this.#registry.assertKeyStoreAvailable(snapshot.keyHash);
@@ -37,10 +35,12 @@ export class HDKeyStoreManager {
   }
 
   async export(params: ExportKeyStoreParams) {
-    assertPlainObject(params, '`params` parameter');
     await this.#registry.assertKeyStoreAvailable(params.hash);
     const snapshot = await this.#registry.getKeyStore(params.hash);
-    const store = new HDKeyStore(snapshot!);
+    if (!isHDSnapshot(snapshot)) {
+      throw new Error('the not is hd wallet snapshot');
+    }
+    const store = new HDKeyStore(snapshot);
     if (params.source === KeyStoreSource.PrivateKey) {
       await store.unlock(UnlockKeyType.Password, params.password);
       return store.exportPrivateKey(params.chainType, params.hash);

@@ -1,4 +1,3 @@
-import { assertFrozen, assertPlainObject, assertSnapshot } from '../asserts';
 import { CoinInfo } from '../coin-registry';
 import { KeyStoreAgent, KeyStoreSnapshot, KeyType, SignParams } from '../types';
 
@@ -12,16 +11,12 @@ export class HDWallet {
 
   // #region cryptographic operations
   async deriveKey(hash: KeyStoreSnapshot['hash'], info: Readonly<CoinInfo>): Promise<boolean> {
-    assertFrozen(info, '`info` parameter');
-    assertPlainObject(info, '`info` parameter');
     const snapshot = await this.#registry.getKeyStore(hash);
-    assertSnapshot(snapshot, '`snapshot`');
     throw new Error('not implemented');
   }
 
   async verify(hash: KeyStoreSnapshot['hash'], password: string): Promise<boolean> {
     const snapshot = await this.#registry.getKeyStore(hash);
-    assertSnapshot(snapshot, 'snapshot');
     throw new Error('not implemented');
   }
 
@@ -32,7 +27,6 @@ export class HDWallet {
   }
 
   async signTransaction(params: SignParams) {
-    assertPlainObject(params, '`params` parameter');
     throw new Error('not implemented');
   }
   // #endregion
