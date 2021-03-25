@@ -11,39 +11,39 @@ export class CryptoSuiteError extends Error {
 
 export type KeyStore = KeyStore.Type;
 
-namespace KeyStore {
-  export type Type = AESCipher & KeyDerivation & { mac: string };
+declare namespace KeyStore {
+  type Type = AESCipher & KeyDerivation & { mac: string };
 
-  export interface AESCipher {
+  interface AESCipher {
     cipher: 'aes-128-ctr' | 'aes-128-cbc';
     cipherparams: AESCipherParams;
     ciphertext: string;
   }
 
-  export interface AESCipherParams {
+  interface AESCipherParams {
     iv: string;
   }
 
-  export type KeyDerivation = PBKDF2 | Scrypt;
+  type KeyDerivation = PBKDF2 | Scrypt;
 
-  export interface PBKDF2 {
+  interface PBKDF2 {
     kdf: 'pbkdf2';
     kdfparams: PBKDF2Params;
   }
 
-  export interface PBKDF2Params {
+  interface PBKDF2Params {
     c: number;
     prf: 'hmac-sha256';
     dklen: number;
     salt: string;
   }
 
-  export interface Scrypt {
+  interface Scrypt {
     kdf: 'scrypt';
     kdfparams: ScryptParams;
   }
 
-  export interface ScryptParams {
+  interface ScryptParams {
     n: number;
     p: number;
     r: number;

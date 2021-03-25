@@ -30,6 +30,7 @@ export class HDKey {
     const hdkey = new HDKey(versions);
     hdkey.#chainCode = new Uint8Array(signed.slice(32));
     hdkey.setPrivateKey(new Uint8Array(signed.slice(0, 32)));
+
     return hdkey;
   }
 
@@ -76,6 +77,7 @@ export class HDKey {
       private: versions.private,
       public: versions.public,
     });
+    Object.freeze(this);
   }
 
   get fingerprint() {
@@ -158,8 +160,10 @@ export class HDKey {
     view.setUint8(4, this.depth);
     view.setUint32(5, this.depth ? this.#parentFingerprint : 0);
     view.setUint32(9, this.index);
+    this.#chainCode.copyWithin(13, 0);
     packed.set(this.#chainCode, 13);
     packed.set(key, 45);
+    console.log(this.#chainCode, key, packed);
     return packed;
   };
 
