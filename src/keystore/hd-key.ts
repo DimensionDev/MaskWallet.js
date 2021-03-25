@@ -22,7 +22,7 @@ export class HDKey {
   static readonly HARDENED_OFFSET = HARDENED_OFFSET;
 
   static fromJSON({ xpriv }: ReturnType<HDKey['toJSON']>) {
-    return this.fromExtendedKey(xpriv);
+    return xpriv ? this.fromExtendedKey(xpriv) : null;
   }
 
   static async fromMasterSeed(seed: Uint8Array, versions = BITCOIN_VERSIONS) {
@@ -30,7 +30,6 @@ export class HDKey {
     const hdkey = new HDKey(versions);
     hdkey.#chainCode = new Uint8Array(signed.slice(32));
     hdkey.setPrivateKey(new Uint8Array(signed.slice(0, 32)));
-
     return hdkey;
   }
 
@@ -108,8 +107,13 @@ export class HDKey {
     return this.#index;
   }
 
+  getPrivateKey(): Uint8Array;
+  getPrivateKey(extended: true): Uint8Array | null;
   getPrivateKey(extended = false) {
     if (extended) {
+      if (this.#privateKey.length === 0) {
+        return null;
+      }
       return this.#serialize('private', Uint8Array.of(0, ...this.#privateKey));
     }
     return Uint8Array.from(this.#privateKey);
@@ -124,7 +128,7 @@ export class HDKey {
       throw new Error('Invalid private key');
     } else {
       this.#privateKey = value;
-      this.#publicKey = publicKeyCreate(value, true);
+      this.#publicKey = Uint8Array.from(publicKeyCreate(value, true));
       this.#identifier = await hash160(this.#publicKey);
       this.#fingerprint = readUInt32BE(this.#identifier);
     }
@@ -141,68 +145,56 @@ export class HDKey {
     if (value === undefined) {
       this.#publicKey = value;
     } else if (!(value.length === 33 || value.length === 65)) {
-      throw new Error('Public key must be 33 or 65 bytes.');
+      throw new Error('Public key must be 33 or 65 bytes');
     } else if (!publicKeyVerify(value)) {
-      throw new Error('Invalid public key.');
+      throw new Error('Invalid public key');
     } else {
       this.#privateKey = Uint8Array.of();
-      this.#publicKey = publicKeyConvert(value, true);
+      this.#publicKey = Uint8Array.from(publicKeyConvert(value, true));
       this.#identifier = await hash160(this.#publicKey);
       this.#fingerprint = readUInt32BE(this.#identifier);
     }
   }
 
-  #serialize = (version: keyof Versions, key: Uint8Array) => {
-    // => version(4) || depth(1) || fingerprint(4) || index(4) || chain(32) || key(33)
-    const packed = new Uint8Array(PACKED_LENGTH);
-    const view = new DataView(packed.buffer);
-    view.setUint32(0, this.versions[version]);
-    view.setUint8(4, this.depth);
-    view.setUint32(5, this.depth ? this.#parentFingerprint : 0);
-    view.setUint32(9, this.index);
-    this.#chainCode.copyWithin(13, 0);
-    packed.set(this.#chainCode, 13);
-    packed.set(key, 45);
-    console.log(this.#chainCode, key, packed);
-    return packed;
-  };
-
   async derive(path: string) {
     if (/^m'?$/.test(path)) {
       return this;
-    } else if (!/^m'?\//.test(path)) {
+    }
+    const entries = path.split(/\//g);
+    if (!/^m'?$/.test(entries.shift()!)) {
       throw new Error('Path must start with "m"');
     }
     let key: HDKey = this;
-    for (const entry of path.split(/\//g).slice(1)) {
-      const match = /(\d+)('?)/.exec(entry);
-      if (match === null) {
-        throw new Error('Invalid entry');
-      }
-      const childIndex = Number.parseInt(match[1], 10);
+    for (const entry of entries) {
+      let childIndex = Number.parseInt(entry, 10);
       if (childIndex > HARDENED_OFFSET) {
         throw new Error('Invalid index');
+      } else if (entry.length > 1 && entry.endsWith("'")) {
+        childIndex += HARDENED_OFFSET;
       }
-      key = await key.deriveChild(match[2] === "'" ? childIndex + HARDENED_OFFSET : childIndex);
+      key = await key.deriveChild(childIndex);
     }
     return key;
   }
 
   private async deriveChild(index: number): Promise<HDKey> {
-    const isHardened = index >= HARDENED_OFFSET;
-    const indexBuffer = new Uint8Array(4);
-    new DataView(indexBuffer.buffer).setUint32(0, index);
     let data: Uint8Array;
-    if (isHardened) {
-      if (this.#privateKey.length === 0) {
+    if (index >= HARDENED_OFFSET) {
+      const key = this.#privateKey;
+      if (key.length === 0) {
         throw new Error('Could not derive hardened child key');
       }
       // data = 0x00 || ser256(kpar) || ser32(index)
-      data = Uint8Array.of(0, ...this.#privateKey, ...indexBuffer);
+      data = new Uint8Array(1 + key.length + 4);
+      data.set(key, 1);
+      new DataView(data.buffer).setUint32(key.length + 1, index);
     } else {
       // data = serP(point(kpar)) || ser32(index)
       //      = serP(Kpar) || ser32(index)
-      data = Uint8Array.of(...this.#publicKey, ...indexBuffer);
+      const key = this.#publicKey;
+      data = new Uint8Array(key.length + 4);
+      data.set(key, 0);
+      new DataView(data.buffer).setUint32(key.length, index);
     }
     const signed = await createHMAC(this.#chainCode, data);
     const hdkey = new HDKey(this.versions);
@@ -212,7 +204,7 @@ export class HDKey {
     if (this.#privateKey.length > 0) {
       // ki = parse256(IL) + kpar (mod n)
       try {
-        hdkey.#privateKey = privateKeyTweakAdd(this.#privateKey, tweak);
+        hdkey.#privateKey = Uint8Array.from(privateKeyTweakAdd(Uint8Array.from(this.#privateKey), tweak));
         // throw if IL >= n || (privateKey + IL) === 0
       } catch {
         // In case parse256(IL) >= n or ki == 0, one should proceed with the next value for i
@@ -223,7 +215,7 @@ export class HDKey {
       // Ki = point(parse256(IL)) + Kpar
       //    = G*IL + Kpar
       try {
-        hdkey.#publicKey = publicKeyTweakAdd(this.#publicKey, tweak, true);
+        hdkey.#publicKey = Uint8Array.from(publicKeyTweakAdd(Uint8Array.from(this.#publicKey), tweak, true));
         // throw if IL >= n || (g**IL + publicKey) is infinity
       } catch {
         // In case parse256(IL) >= n or Ki is the point at infinity, one should proceed with the next value for i
@@ -250,11 +242,25 @@ export class HDKey {
   }
 
   toJSON() {
+    const xpriv = this.getPrivateKey(true);
     return {
-      xpriv: encode(this.getPrivateKey(true)),
+      xpriv: xpriv ? encode(xpriv) : null,
       xpub: encode(this.getPublicKey(true)),
     };
   }
+
+  #serialize = (version: keyof Versions, key: Uint8Array) => {
+    // => version(4) || depth(1) || fingerprint(4) || index(4) || chain(32) || key(33)
+    const packed = new Uint8Array(PACKED_LENGTH);
+    const view = new DataView(packed.buffer);
+    view.setUint32(0, this.versions[version]);
+    view.setUint8(4, this.depth);
+    view.setUint32(5, this.depth ? this.#parentFingerprint : 0);
+    view.setUint32(9, this.index);
+    packed.set(this.#chainCode, 13);
+    packed.set(key, 45);
+    return packed;
+  };
 }
 
 async function createHMAC(userKey: Uint8Array, message: Uint8Array) {
