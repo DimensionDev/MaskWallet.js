@@ -28,8 +28,8 @@ export class HDKey {
   static async fromMasterSeed(seed: Uint8Array, versions = BITCOIN_VERSIONS) {
     const signed = await createHMAC(MASTER_SECRET, seed);
     const hdkey = new HDKey(versions);
-    hdkey.#chainCode = new Uint8Array(signed.slice(32));
-    hdkey.setPrivateKey(new Uint8Array(signed.slice(0, 32)));
+    hdkey.#chainCode = signed.slice(32);
+    hdkey.setPrivateKey(signed.slice(0, 32));
     return hdkey;
   }
 
@@ -120,9 +120,7 @@ export class HDKey {
   }
 
   async setPrivateKey(value: Uint8Array) {
-    if (value === undefined) {
-      this.#privateKey = value;
-    } else if (value.length !== 32) {
+    if (value.length !== 32) {
       throw new Error('Private key must be 32 bytes');
     } else if (!privateKeyVerify(value)) {
       throw new Error('Invalid private key');
@@ -142,9 +140,7 @@ export class HDKey {
   }
 
   async setPublicKey(value: Uint8Array) {
-    if (value === undefined) {
-      this.#publicKey = value;
-    } else if (!(value.length === 33 || value.length === 65)) {
+    if (!(value.length === 33 || value.length === 65)) {
       throw new Error('Public key must be 33 or 65 bytes');
     } else if (!publicKeyVerify(value)) {
       throw new Error('Invalid public key');
@@ -157,9 +153,6 @@ export class HDKey {
   }
 
   async derive(path: string) {
-    if (/^m'?$/.test(path)) {
-      return this;
-    }
     const entries = path.split(/\//g);
     if (!/^m'?$/.test(entries.shift()!)) {
       throw new Error('Path must start with "m"');
@@ -198,8 +191,8 @@ export class HDKey {
     }
     const signed = await createHMAC(this.#chainCode, data);
     const hdkey = new HDKey(this.versions);
-    const tweak = new Uint8Array(signed.slice(0, 32));
-    const chainCode = new Uint8Array(signed.slice(32));
+    const tweak = signed.slice(0, 32);
+    const chainCode = signed.slice(32);
     // Private parent key -> private child key
     if (this.#privateKey.length > 0) {
       // ki = parse256(IL) + kpar (mod n)
