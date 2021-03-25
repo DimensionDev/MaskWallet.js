@@ -5,8 +5,15 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "esModuleInterop": true,
+    // #region strict typing
     "strict": true,
     "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    // #endregion
+    // #region typing
+    "typeRoots": ["node_modules/@types", "typing"],
+    // #endregion
     // #region output
     "outDir": "esm",
     "declaration": true,

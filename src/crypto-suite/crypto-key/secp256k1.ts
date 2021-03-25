@@ -1,6 +1,6 @@
 import { BIP32Interface, fromSeed } from 'bip32';
 import { mnemonicToSeed, mnemonicToEntropy } from 'bip39';
-import { publicKeyCreate } from 'secp256k1';
+import { publicKeyCreate, ecdsaSign, privateKeyExport } from 'secp256k1';
 import { CurveType } from '../../types';
 import { DeterministicPrivateKey, DeterministicPublicKey } from './types';
 
@@ -47,7 +47,7 @@ export class SECP256k1PrivateKey extends DeterministicPrivateKey {
   }
 
   async sign(data: Uint8Array): Promise<Uint8Array> {
-    throw new Error('Method not implemented.');
+    return ecdsaSign(data, this.#key).signature;
   }
 
   async signRecoverable(data: Uint8Array): Promise<Uint8Array> {
@@ -55,7 +55,7 @@ export class SECP256k1PrivateKey extends DeterministicPrivateKey {
   }
 
   toString(): string {
-    return this.#key.toString('hex');
+    return Buffer.from(privateKeyExport(this.#key, true)).toString('hex');
   }
 }
 
