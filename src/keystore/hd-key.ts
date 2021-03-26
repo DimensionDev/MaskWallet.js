@@ -8,10 +8,10 @@ const MASTER_SECRET = Uint8Array.of(66, 105, 116, 99, 111, 105, 110, 32, 115, 10
 const HARDENED_OFFSET = 0x80000000;
 const PACKED_LENGTH = 78;
 // Bitcoin hardcoded by default, can use package `coininfo` for others
-const BITCOIN_VERSIONS: Versions = {
+const BITCOIN_VERSIONS = Object.freeze<Versions>({
   private: 0x0488ade4,
   public: 0x0488b21e,
-};
+});
 
 export interface Options {
   makeIdentifier(input: Uint8Array): Promise<Uint8Array>;
@@ -24,7 +24,7 @@ export interface Versions {
 
 export interface HDKeySnapshot {
   xpriv: string | null;
-  xpub: string;
+  xpub: string | null;
 }
 
 export class HDKey {
@@ -77,11 +77,11 @@ export class HDKey {
   #depth = 0;
   #index = 0;
   #privateKey: Uint8Array | undefined;
-  #publicKey = Uint8Array.of();
-  #chainCode = Uint8Array.of();
+  #publicKey: Uint8Array | undefined;
+  #chainCode: Uint8Array | undefined;
+  #identifier: Uint8Array | undefined;
   #fingerprint = 0;
   #parentFingerprint = 0;
-  #identifier = Uint8Array.of();
 
   private makeIdentifier: Options['makeIdentifier'];
 
@@ -102,15 +102,11 @@ export class HDKey {
   }
 
   get chainCode() {
-    return Uint8Array.from(this.#chainCode);
+    return this.#chainCode ? Uint8Array.from(this.#chainCode) : null;
   }
 
   get identifier() {
-    return Uint8Array.from(this.#identifier);
-  }
-
-  get pubKeyHash() {
-    return this.identifier;
+    return this.#identifier ? Uint8Array.from(this.#identifier) : null;
   }
 
   get depth() {
@@ -121,46 +117,46 @@ export class HDKey {
     return this.#index;
   }
 
-  getPrivateKey(): Uint8Array | undefined;
-  getPrivateKey(extended: true): Uint8Array | undefined;
-  getPrivateKey(extended = false) {
-    if (this.#privateKey === undefined) {
-      return undefined;
+  getPublicKey(extended = false) {
+    const key = this.#publicKey;
+    if (key === undefined) {
+      return null;
+    } else if (extended) {
+      return this.#serialize('public', key);
+    } else {
+      return Uint8Array.from(key);
     }
-    if (extended) {
-      return this.#serialize('private', Uint8Array.of(0, ...this.#privateKey));
-    }
-    return Uint8Array.from(this.#privateKey);
   }
 
-  async setPrivateKey(value: Uint8Array) {
-    if (value.length !== 32) {
-      throw new Error('Private key must be 32 bytes');
-    } else if (!privateKeyVerify(value)) {
-      throw new Error('Invalid private key');
+  async setPublicKey(key: Uint8Array) {
+    key = Uint8Array.from(key);
+    if (!publicKeyVerify(key)) {
+      throw new Error('Invalid public key');
     } else {
-      this.#privateKey = value;
-      this.#publicKey = Uint8Array.from(publicKeyCreate(value, true));
+      this.#privateKey = undefined;
+      this.#publicKey = Uint8Array.from(publicKeyConvert(key, true));
       this.#identifier = await this.makeIdentifier(this.#publicKey);
       this.#fingerprint = readUInt32BE(this.#identifier);
     }
   }
-
-  getPublicKey(extended = false) {
-    if (extended) {
-      return this.#serialize('public', this.#publicKey);
+  getPrivateKey(extended = false) {
+    const key = this.#privateKey;
+    if (key === undefined) {
+      return undefined;
+    } else if (extended) {
+      return this.#serialize('private', Uint8Array.of(0, ...key));
+    } else {
+      return Uint8Array.from(key);
     }
-    return Uint8Array.from(this.#publicKey);
   }
 
-  async setPublicKey(value: Uint8Array) {
-    if (!(value.length === 33 || value.length === 65)) {
-      throw new Error('Public key must be 33 or 65 bytes');
-    } else if (!publicKeyVerify(value)) {
-      throw new Error('Invalid public key');
+  async setPrivateKey(key: Uint8Array) {
+    key = Uint8Array.from(key);
+    if (!privateKeyVerify(key)) {
+      throw new Error('Invalid private key');
     } else {
-      this.#privateKey = undefined;
-      this.#publicKey = Uint8Array.from(publicKeyConvert(value, true));
+      this.#privateKey = key;
+      this.#publicKey = Uint8Array.from(publicKeyCreate(key, true));
       this.#identifier = await this.makeIdentifier(this.#publicKey);
       this.#fingerprint = readUInt32BE(this.#identifier);
     }
@@ -185,13 +181,16 @@ export class HDKey {
   }
 
   private async deriveChild(index: number): Promise<HDKey> {
+    if (this.#publicKey === undefined || this.#chainCode === undefined) {
+      throw new Error('Could not derive child key');
+    }
     let data: Uint8Array;
     if (index >= HARDENED_OFFSET) {
       const key = this.#privateKey;
       if (key === undefined) {
         throw new Error('Could not derive hardened child key');
       }
-      // data = 0x00 || ser256(kpar) || ser32(index)
+      // data = 0x00 || ser256(kpar) || ser32(index);
       data = new Uint8Array(1 + key.length + 4);
       data.set(key, 1);
       new DataView(data.buffer).setUint32(key.length + 1, index);
@@ -205,33 +204,34 @@ export class HDKey {
     }
     const signed = await createHMAC(this.#chainCode, data);
     const hdkey = new HDKey(this.versions);
-    const tweak = signed.slice(0, 32);
-    const chainCode = signed.slice(32);
-    const key = this.#privateKey;
-    if (key) {
-      // Private parent key -> private child key
+    const IL = signed.slice(0, 32);
+    const IR = signed.slice(32);
+    if (this.#privateKey) {
       try {
+        // Private parent key -> private child key
         // Ki = parse256(IL) + kpar (mod n)
-        hdkey.#privateKey = Uint8Array.from(privateKeyTweakAdd(key, tweak));
+        hdkey.#privateKey = privateKeyTweakAdd(this.#privateKey, IL);
+        hdkey.#publicKey = Uint8Array.from(publicKeyCreate(this.#privateKey, true));
         // throw if IL >= n || (privateKey + IL) === 0
       } catch {
         // In case parse256(IL) >= n or ki == 0, one should proceed with the next value for i
         return this.deriveChild(index + 1);
       }
     } else {
-      // Public parent key -> public child key
       try {
+        // Public parent key -> public child key
         // Ki = point(parse256(IL)) + Kpar
         //    = G*IL + Kpar
-        hdkey.#publicKey = Uint8Array.from(publicKeyTweakAdd(this.#publicKey, tweak, true));
+        hdkey.#privateKey = undefined;
+        hdkey.#publicKey = publicKeyTweakAdd(this.#publicKey, IL, true);
         // throw if IL >= n || (g**IL + publicKey) is infinity
       } catch {
         // In case parse256(IL) >= n or Ki is the point at infinity, one should proceed with the next value for i
         return this.deriveChild(index + 1);
       }
     }
-    hdkey.#chainCode = chainCode;
-    hdkey.#depth += 1;
+    hdkey.#chainCode = IR;
+    hdkey.#depth = this.#depth + 1;
     hdkey.#parentFingerprint = this.#fingerprint;
     hdkey.#index = index;
     return hdkey;
@@ -246,7 +246,8 @@ export class HDKey {
   }
 
   verify(hash: Uint8Array, signature: Uint8Array) {
-    return ecdsaVerify(hash, signature, this.getPublicKey());
+    const key = this.getPublicKey();
+    return key ? ecdsaVerify(hash, signature, key) : false;
   }
 
   wipePrivateKey() {
@@ -258,14 +259,25 @@ export class HDKey {
 
   toJSON(): HDKeySnapshot {
     const xpriv = this.getPrivateKey(true);
+    const xpub = this.getPublicKey(true);
     return {
       xpriv: xpriv ? encode(xpriv) : null,
-      xpub: encode(this.getPublicKey(true)),
+      xpub: xpub ? encode(xpub) : null,
     };
   }
 
   #serialize = (version: keyof Versions, key: Uint8Array) => {
-    // => version(4) || depth(1) || fingerprint(4) || index(4) || chain(32) || key(33)
+    if (this.#chainCode === undefined) {
+      throw new Error('chain code unavailable');
+    }
+    // name           offset
+    // version(4)     0
+    // depth(1)       4
+    // fingerprint(4) 5
+    // index(4)       9
+    // chain(32)      13
+    // key(33)        45
+    //                78
     const packed = new Uint8Array(PACKED_LENGTH);
     const view = new DataView(packed.buffer);
     view.setUint32(0, this.versions[version]);

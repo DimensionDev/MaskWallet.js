@@ -31,7 +31,7 @@ describe('HDKey', () => {
       assert.deepEqual(hdkey.chainCode, Buffer.from('9452b549be8cea3ecb7a84bec10dcfd94afe4d129ebfd3b3cb58eedf394ed271', 'hex'));
       assert.deepEqual(hdkey.getPrivateKey(), Buffer.from('bb7d39bdb83ecf58f2fd82b6d918341cbef428661ef01ab97c28a4842125ac23', 'hex'));
       assert.deepEqual(hdkey.getPublicKey(), Buffer.from('024d902e1a2fc7a8755ab5b694c575fce742c48d9ff192e63df5193e4c7afe1f9c', 'hex'));
-      // assert.deepEqual(hdkey.identifier, Buffer.from('26132fdbe7bf89cbc64cf8dafa3f9f88b8666220', 'hex'));
+      assert.deepEqual(hdkey.identifier, Buffer.from('26132fdbe7bf89cbc64cf8dafa3f9f88b8666220', 'hex'));
     });
 
     it('should parse it (when public)', async () => {
@@ -46,7 +46,7 @@ describe('HDKey', () => {
       assert.deepEqual(hdkey.chainCode, Buffer.from('9452b549be8cea3ecb7a84bec10dcfd94afe4d129ebfd3b3cb58eedf394ed271', 'hex'));
       assert.isUndefined(hdkey.getPrivateKey());
       assert.deepEqual(hdkey.getPublicKey(), Buffer.from('024d902e1a2fc7a8755ab5b694c575fce742c48d9ff192e63df5193e4c7afe1f9c', 'hex'));
-      // assert.deepEqual(hdkey.identifier, Buffer.from('26132fdbe7bf89cbc64cf8dafa3f9f88b8666220', 'hex'));
+      assert.deepEqual(hdkey.identifier, Buffer.from('26132fdbe7bf89cbc64cf8dafa3f9f88b8666220', 'hex'));
     });
   });
 });
