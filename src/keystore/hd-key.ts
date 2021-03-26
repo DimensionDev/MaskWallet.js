@@ -13,6 +13,10 @@ const BITCOIN_VERSIONS: Versions = {
   public: 0x0488b21e,
 };
 
+export interface Options {
+  makeIdentifier(input: Uint8Array): Promise<Uint8Array>;
+}
+
 export interface Versions {
   private: number;
   public: number;
@@ -62,6 +66,7 @@ export class HDKey {
   }
 
   versions: Readonly<Versions>;
+
   #depth = 0;
   #index = 0;
   #privateKey: Uint8Array | undefined;
@@ -71,12 +76,14 @@ export class HDKey {
   #parentFingerprint = 0;
   #identifier = Uint8Array.of();
 
-  constructor(versions = BITCOIN_VERSIONS) {
+  private makeIdentifier: Options['makeIdentifier'];
+
+  constructor(versions = BITCOIN_VERSIONS, options?: Options) {
+    this.makeIdentifier = options?.makeIdentifier ?? hash160;
     this.versions = Object.freeze<Versions>({
       private: versions.private,
       public: versions.public,
     });
-    Object.freeze(this);
   }
 
   get fingerprint() {
@@ -127,7 +134,7 @@ export class HDKey {
     } else {
       this.#privateKey = value;
       this.#publicKey = Uint8Array.from(publicKeyCreate(value, true));
-      this.#identifier = await hash160(this.#publicKey);
+      this.#identifier = await this.makeIdentifier(this.#publicKey);
       this.#fingerprint = readUInt32BE(this.#identifier);
     }
   }
@@ -147,7 +154,7 @@ export class HDKey {
     } else {
       this.#privateKey = undefined;
       this.#publicKey = Uint8Array.from(publicKeyConvert(value, true));
-      this.#identifier = await hash160(this.#publicKey);
+      this.#identifier = await this.makeIdentifier(this.#publicKey);
       this.#fingerprint = readUInt32BE(this.#identifier);
     }
   }
