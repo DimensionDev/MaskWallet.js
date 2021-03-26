@@ -1,7 +1,7 @@
 import { decode, encode } from 'bs58check';
 import { ecdsaSign, ecdsaVerify, privateKeyTweakAdd, privateKeyVerify, publicKeyConvert, publicKeyCreate, publicKeyTweakAdd, publicKeyVerify } from 'secp256k1';
 import crypto from '../crypto-suite/driver';
-import RIPEMD160 from 'ripemd160';
+import { hash160 } from './hd-key-identifier';
 
 // UTF8 Encoded: 'Bitcoin seed'
 const MASTER_SECRET = Uint8Array.of(66, 105, 116, 99, 111, 105, 110, 32, 115, 101, 101, 100);
@@ -23,14 +23,16 @@ export interface Versions {
 }
 
 export class HDKey {
-  static readonly HARDENED_OFFSET = HARDENED_OFFSET;
+  static get HARDENED_OFFSET() {
+    return HARDENED_OFFSET;
+  }
 
   static fromJSON({ xpriv }: ReturnType<HDKey['toJSON']>) {
     return xpriv ? this.fromExtendedKey(xpriv) : undefined;
   }
 
-  static async fromMasterSeed(seed: Uint8Array, versions = BITCOIN_VERSIONS) {
-    const signed = await createHMAC(MASTER_SECRET, seed);
+  static async fromMasterSeed(seed: Uint8Array, versions = BITCOIN_VERSIONS, secret = MASTER_SECRET) {
+    const signed = await createHMAC(secret, seed);
     const hdkey = new HDKey(versions);
     hdkey.#chainCode = signed.slice(32);
     hdkey.setPrivateKey(signed.slice(0, 32));
@@ -169,7 +171,7 @@ export class HDKey {
       let childIndex = Number.parseInt(entry, 10);
       if (childIndex > HARDENED_OFFSET) {
         throw new Error('Invalid index');
-      } else if (entry.length > 1 && entry.endsWith("'")) {
+      } else if (entry.endsWith("'")) {
         childIndex += HARDENED_OFFSET;
       }
       key = await key.deriveChild(childIndex);
@@ -271,21 +273,14 @@ export class HDKey {
   };
 }
 
-async function createHMAC(userKey: Uint8Array, message: Uint8Array) {
+async function createHMAC(secret: Uint8Array, message: Uint8Array) {
   const usages: KeyUsage[] = ['sign', 'verify'];
   const algorithm: HmacImportParams = { name: 'HMAC', hash: { name: 'SHA-512' } };
-  const key = await crypto.subtle.importKey('raw', userKey, algorithm, false, usages);
+  const key = await crypto.subtle.importKey('raw', secret, algorithm, false, usages);
   const hashed = await crypto.subtle.sign(algorithm, key, message);
   return new Uint8Array(hashed);
 }
 
 function readUInt32BE(data: Uint8Array, offset = 0) {
   return new DataView(data.buffer).getUint32(offset);
-}
-
-async function hash160(input: Uint8Array) {
-  // fn(input) = ripemd160(sha256(input))
-  const sha256 = await crypto.subtle.digest('SHA-256', input);
-  const hashed = new RIPEMD160().update(Buffer.from(sha256)).digest();
-  return Uint8Array.from(hashed);
 }
