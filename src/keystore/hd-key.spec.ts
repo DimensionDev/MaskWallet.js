@@ -49,4 +49,34 @@ describe('HDKey', () => {
       assert.deepEqual(hdkey.identifier, Buffer.from('26132fdbe7bf89cbc64cf8dafa3f9f88b8666220', 'hex'));
     });
   });
+
+  it('signing', async () => {
+    const key = 'xprvA2nrNbFZABcdryreWet9Ea4LvTJcGsqrMzxHx98MMrotbir7yrKCEXw7nadnHM8Dq38EGfSh6dqA9QWTyefMLEcBYJUuekgW4BYPJcr9E7j';
+    const hdkey = await HDKey.fromExtendedKey(key);
+
+    const ma = Buffer.alloc(32, 0);
+    const mb = Buffer.alloc(32, 8);
+    const a = hdkey.sign(ma);
+    const b = hdkey.sign(mb);
+    assert.equal(
+      Buffer.from(a).toString('hex'),
+      '6ba4e554457ce5c1f1d7dbd10459465e39219eb9084ee23270688cbe0d49b52b7905d5beb28492be439a3250e9359e0390f844321b65f1a88ce07960dd85da06'
+    );
+    assert.equal(
+      Buffer.from(a).toString('hex'),
+      'dfae85d39b73c9d143403ce472f7c4c8a5032c13d9546030044050e7d39355e47a532e5c0ae2a25392d97f5e55ab1288ef1e08d5c034bad3b0956fbbab73b381'
+    );
+    assert.equal(hdkey.verify(ma, a), true);
+    assert.equal(hdkey.verify(mb, b), true);
+    assert.equal(hdkey.verify(Buffer.alloc(32), Buffer.alloc(64)), false);
+    assert.equal(hdkey.verify(ma, b), false);
+    assert.equal(hdkey.verify(mb, a), false);
+
+    assert.throws(() => {
+      hdkey.verify(Buffer.alloc(99), a);
+    }, /message.*length/);
+    assert.throws(() => {
+      hdkey.verify(ma, Buffer.alloc(99));
+    }, /signature.*length/);
+  });
 });
