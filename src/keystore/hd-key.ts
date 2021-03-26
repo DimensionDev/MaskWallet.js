@@ -22,12 +22,17 @@ export interface Versions {
   public: number;
 }
 
+export interface HDKeySnapshot {
+  xpriv: string | null;
+  xpub: string;
+}
+
 export class HDKey {
   static get HARDENED_OFFSET() {
     return HARDENED_OFFSET;
   }
 
-  static fromJSON({ xpriv }: ReturnType<HDKey['toJSON']>) {
+  static async fromJSON({ xpriv }: HDKeySnapshot) {
     return xpriv ? this.fromExtendedKey(xpriv) : undefined;
   }
 
@@ -251,7 +256,7 @@ export class HDKey {
     this.#privateKey = undefined;
   }
 
-  toJSON() {
+  toJSON(): HDKeySnapshot {
     const xpriv = this.getPrivateKey(true);
     return {
       xpriv: xpriv ? encode(xpriv) : null,
