@@ -240,12 +240,12 @@ export class HDKey {
     if (key === undefined || !privateKeyVerify(key)) {
       throw new Error('Invalid private key');
     }
-    return ecdsaSign(hash, key).signature;
+    return ecdsaSign(Uint8Array.from(hash), key).signature;
   }
 
   verify(hash: Uint8Array, signature: Uint8Array) {
     const key = this.getPublicKey();
-    return key ? ecdsaVerify(hash, signature, key) : false;
+    return key ? ecdsaVerify(Uint8Array.from(signature), Uint8Array.from(hash), key) : false;
   }
 
   wipePrivateKey() {
