@@ -22,7 +22,7 @@ export class HDKey {
   static readonly HARDENED_OFFSET = HARDENED_OFFSET;
 
   static fromJSON({ xpriv }: ReturnType<HDKey['toJSON']>) {
-    return xpriv ? this.fromExtendedKey(xpriv) : null;
+    return xpriv ? this.fromExtendedKey(xpriv) : undefined;
   }
 
   static async fromMasterSeed(seed: Uint8Array, versions = BITCOIN_VERSIONS) {
@@ -64,7 +64,7 @@ export class HDKey {
   versions: Readonly<Versions>;
   #depth = 0;
   #index = 0;
-  #privateKey = Uint8Array.of();
+  #privateKey: Uint8Array | undefined;
   #publicKey = Uint8Array.of();
   #chainCode = Uint8Array.of();
   #fingerprint = 0;
@@ -107,13 +107,13 @@ export class HDKey {
     return this.#index;
   }
 
-  getPrivateKey(): Uint8Array;
-  getPrivateKey(extended: true): Uint8Array | null;
+  getPrivateKey(): Uint8Array | undefined;
+  getPrivateKey(extended: true): Uint8Array | undefined;
   getPrivateKey(extended = false) {
+    if (this.#privateKey === undefined) {
+      return undefined;
+    }
     if (extended) {
-      if (this.#privateKey.length === 0) {
-        return null;
-      }
       return this.#serialize('private', Uint8Array.of(0, ...this.#privateKey));
     }
     return Uint8Array.from(this.#privateKey);
@@ -145,7 +145,7 @@ export class HDKey {
     } else if (!publicKeyVerify(value)) {
       throw new Error('Invalid public key');
     } else {
-      this.#privateKey = Uint8Array.of();
+      this.#privateKey = undefined;
       this.#publicKey = Uint8Array.from(publicKeyConvert(value, true));
       this.#identifier = await hash160(this.#publicKey);
       this.#fingerprint = readUInt32BE(this.#identifier);
@@ -174,7 +174,7 @@ export class HDKey {
     let data: Uint8Array;
     if (index >= HARDENED_OFFSET) {
       const key = this.#privateKey;
-      if (key.length === 0) {
+      if (key === undefined) {
         throw new Error('Could not derive hardened child key');
       }
       // data = 0x00 || ser256(kpar) || ser32(index)
@@ -193,22 +193,23 @@ export class HDKey {
     const hdkey = new HDKey(this.versions);
     const tweak = signed.slice(0, 32);
     const chainCode = signed.slice(32);
-    // Private parent key -> private child key
-    if (this.#privateKey.length > 0) {
-      // ki = parse256(IL) + kpar (mod n)
+    const key = this.#privateKey;
+    if (key) {
+      // Private parent key -> private child key
       try {
-        hdkey.#privateKey = Uint8Array.from(privateKeyTweakAdd(Uint8Array.from(this.#privateKey), tweak));
+        // Ki = parse256(IL) + kpar (mod n)
+        hdkey.#privateKey = Uint8Array.from(privateKeyTweakAdd(key, tweak));
         // throw if IL >= n || (privateKey + IL) === 0
       } catch {
         // In case parse256(IL) >= n or ki == 0, one should proceed with the next value for i
         return this.deriveChild(index + 1);
       }
-      // Public parent key -> public child key
     } else {
-      // Ki = point(parse256(IL)) + Kpar
-      //    = G*IL + Kpar
+      // Public parent key -> public child key
       try {
-        hdkey.#publicKey = Uint8Array.from(publicKeyTweakAdd(Uint8Array.from(this.#publicKey), tweak, true));
+        // Ki = point(parse256(IL)) + Kpar
+        //    = G*IL + Kpar
+        hdkey.#publicKey = Uint8Array.from(publicKeyTweakAdd(this.#publicKey, tweak, true));
         // throw if IL >= n || (g**IL + publicKey) is infinity
       } catch {
         // In case parse256(IL) >= n or Ki is the point at infinity, one should proceed with the next value for i
@@ -223,7 +224,11 @@ export class HDKey {
   }
 
   sign(hash: Uint8Array) {
-    return ecdsaSign(hash, this.getPrivateKey()).signature;
+    const key = this.#privateKey;
+    if (key === undefined || !privateKeyVerify(key)) {
+      throw new Error('Invalid private key');
+    }
+    return ecdsaSign(hash, key).signature;
   }
 
   verify(hash: Uint8Array, signature: Uint8Array) {
@@ -231,7 +236,10 @@ export class HDKey {
   }
 
   wipePrivateKey() {
-    this.#privateKey = Uint8Array.of();
+    if (this.#privateKey !== undefined) {
+      crypto.getRandomValues(this.#privateKey);
+    }
+    this.#privateKey = undefined;
   }
 
   toJSON() {

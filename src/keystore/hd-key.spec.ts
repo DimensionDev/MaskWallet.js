@@ -44,7 +44,7 @@ describe('HDKey', () => {
       assert.deepEqual(hdkey.parentFingerprint, parentFingerprint);
       assert.deepEqual(hdkey.index, 2);
       assert.deepEqual(hdkey.chainCode, Buffer.from('9452b549be8cea3ecb7a84bec10dcfd94afe4d129ebfd3b3cb58eedf394ed271', 'hex'));
-      assert.lengthOf(hdkey.getPrivateKey(), 0);
+      assert.isUndefined(hdkey.getPrivateKey());
       assert.deepEqual(hdkey.getPublicKey(), Buffer.from('024d902e1a2fc7a8755ab5b694c575fce742c48d9ff192e63df5193e4c7afe1f9c', 'hex'));
       // assert.deepEqual(hdkey.identifier, Buffer.from('26132fdbe7bf89cbc64cf8dafa3f9f88b8666220', 'hex'));
     });
