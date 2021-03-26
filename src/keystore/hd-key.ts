@@ -14,6 +14,7 @@ const BITCOIN_VERSIONS = Object.freeze<Versions>({
 });
 
 export interface Options {
+  versions: Versions;
   makeIdentifier(input: Uint8Array): Promise<Uint8Array>;
 }
 
@@ -38,7 +39,7 @@ export class HDKey {
 
   static async fromMasterSeed(seed: Uint8Array, versions = BITCOIN_VERSIONS, secret = MASTER_SECRET) {
     const signed = await createHMAC(secret, seed);
-    const hdkey = new HDKey(versions);
+    const hdkey = new HDKey({ versions });
     hdkey.#chainCode = signed.slice(32);
     hdkey.setPrivateKey(signed.slice(0, 32));
     return hdkey;
@@ -46,7 +47,7 @@ export class HDKey {
 
   static async fromExtendedKey(base58key: string, versions = BITCOIN_VERSIONS) {
     // => version(4) || depth(1) || fingerprint(4) || index(4) || chain(32) || key(33)
-    const hdkey = new HDKey(versions);
+    const hdkey = new HDKey({ versions });
     const viewKey = new DataView(Uint8Array.from(decode(base58key)).buffer);
     const version = viewKey.getUint32(0);
     if (!(version === versions.private || version === versions.public)) {
@@ -72,22 +73,21 @@ export class HDKey {
     return hdkey;
   }
 
-  versions: Readonly<Versions>;
-
+  #versions: Versions;
   #depth = 0;
   #index = 0;
+  #fingerprint = 0;
+  #parentFingerprint = 0;
   #privateKey: Uint8Array | undefined;
   #publicKey: Uint8Array | undefined;
   #chainCode: Uint8Array | undefined;
   #identifier: Uint8Array | undefined;
-  #fingerprint = 0;
-  #parentFingerprint = 0;
+  #makeIdentifier: Options['makeIdentifier'];
 
-  private makeIdentifier: Options['makeIdentifier'];
-
-  constructor(versions = BITCOIN_VERSIONS, options?: Options) {
-    this.makeIdentifier = options?.makeIdentifier ?? hash160;
-    this.versions = Object.freeze<Versions>({
+  constructor(options?: Partial<Options>) {
+    this.#makeIdentifier = options?.makeIdentifier ?? hash160;
+    const versions = options?.versions ?? BITCOIN_VERSIONS;
+    this.#versions = Object.freeze<Versions>({
       private: versions.private,
       public: versions.public,
     });
@@ -117,6 +117,10 @@ export class HDKey {
     return this.#index;
   }
 
+  get versions() {
+    return this.#versions;
+  }
+
   getPublicKey(extended = false) {
     const key = this.#publicKey;
     if (key === undefined) {
@@ -134,11 +138,12 @@ export class HDKey {
       throw new Error('Invalid public key');
     } else {
       this.#privateKey = undefined;
-      this.#publicKey = Uint8Array.from(publicKeyConvert(key, true));
-      this.#identifier = await this.makeIdentifier(this.#publicKey);
-      this.#fingerprint = readUInt32BE(this.#identifier);
+      this.#publicKey = publicKeyConvert(key, true);
+      this.#identifier = await this.#makeIdentifier(this.#publicKey);
+      this.#fingerprint = getUint32BE(this.#identifier);
     }
   }
+
   getPrivateKey(extended = false) {
     const key = this.#privateKey;
     if (key === undefined) {
@@ -156,9 +161,9 @@ export class HDKey {
       throw new Error('Invalid private key');
     } else {
       this.#privateKey = key;
-      this.#publicKey = Uint8Array.from(publicKeyCreate(key, true));
-      this.#identifier = await this.makeIdentifier(this.#publicKey);
-      this.#fingerprint = readUInt32BE(this.#identifier);
+      this.#publicKey = publicKeyCreate(key, true);
+      this.#identifier = await this.#makeIdentifier(this.#publicKey);
+      this.#fingerprint = getUint32BE(this.#identifier);
     }
   }
 
@@ -193,17 +198,17 @@ export class HDKey {
       // data = 0x00 || ser256(kpar) || ser32(index);
       data = new Uint8Array(1 + key.length + 4);
       data.set(key, 1);
-      new DataView(data.buffer).setUint32(key.length + 1, index);
+      setUint32BE(data, key.length + 1, index);
     } else {
       // data = serP(point(kpar)) || ser32(index)
       //      = serP(Kpar) || ser32(index)
       const key = this.#publicKey;
       data = new Uint8Array(key.length + 4);
       data.set(key, 0);
-      new DataView(data.buffer).setUint32(key.length, index);
+      setUint32BE(data, key.length, index);
     }
     const signed = await createHMAC(this.#chainCode, data);
-    const hdkey = new HDKey(this.versions);
+    const hdkey = new HDKey({ versions: this.#versions });
     const IL = signed.slice(0, 32);
     const IR = signed.slice(32);
     if (this.#privateKey) {
@@ -248,7 +253,9 @@ export class HDKey {
     if (key === undefined || !publicKeyVerify(key)) {
       throw new Error('Invalid public key');
     }
-    return ecdsaVerify(Uint8Array.from(signature), Uint8Array.from(hash), key);
+    signature = Uint8Array.from(signature);
+    hash = Uint8Array.from(hash);
+    return ecdsaVerify(signature, hash, key);
   }
 
   wipePrivateKey() {
@@ -296,6 +303,10 @@ async function createHMAC(secret: Uint8Array, message: Uint8Array) {
   return new Uint8Array(hashed);
 }
 
-function readUInt32BE(data: Uint8Array, offset = 0) {
+function getUint32BE(data: Uint8Array, offset = 0) {
   return new DataView(data.buffer).getUint32(offset);
+}
+
+function setUint32BE(data: Uint8Array, offset = 0, value: number) {
+  new DataView(data.buffer).setUint32(offset, value);
 }
