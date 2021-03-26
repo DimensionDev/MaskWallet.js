@@ -244,8 +244,11 @@ export class HDKey {
   }
 
   verify(hash: Uint8Array, signature: Uint8Array) {
-    const key = this.getPublicKey();
-    return key ? ecdsaVerify(Uint8Array.from(signature), Uint8Array.from(hash), key) : false;
+    const key = this.#publicKey;
+    if (key === undefined || !publicKeyVerify(key)) {
+      throw new Error('Invalid public key');
+    }
+    return ecdsaVerify(Uint8Array.from(signature), Uint8Array.from(hash), key);
   }
 
   wipePrivateKey() {
