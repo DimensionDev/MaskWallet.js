@@ -252,9 +252,6 @@ export class HDKey {
   }
 
   wipePrivateKey() {
-    if (this.#privateKey !== undefined) {
-      crypto.getRandomValues(this.#privateKey);
-    }
     this.#privateKey = undefined;
   }
 
