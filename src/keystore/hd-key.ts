@@ -210,8 +210,7 @@ export class HDKey {
       try {
         // Private parent key -> private child key
         // Ki = parse256(IL) + kpar (mod n)
-        hdkey.#privateKey = privateKeyTweakAdd(this.#privateKey, IL);
-        hdkey.#publicKey = Uint8Array.from(publicKeyCreate(this.#privateKey, true));
+        await hdkey.setPrivateKey(privateKeyTweakAdd(this.#privateKey, IL));
         // throw if IL >= n || (privateKey + IL) === 0
       } catch {
         // In case parse256(IL) >= n or ki == 0, one should proceed with the next value for i
@@ -222,8 +221,7 @@ export class HDKey {
         // Public parent key -> public child key
         // Ki = point(parse256(IL)) + Kpar
         //    = G*IL + Kpar
-        hdkey.#privateKey = undefined;
-        hdkey.#publicKey = publicKeyTweakAdd(this.#publicKey, IL, true);
+        await hdkey.setPublicKey(publicKeyTweakAdd(this.#publicKey, IL, true));
         // throw if IL >= n || (g**IL + publicKey) is infinity
       } catch {
         // In case parse256(IL) >= n or Ki is the point at infinity, one should proceed with the next value for i
