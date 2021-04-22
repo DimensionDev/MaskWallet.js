@@ -1,0 +1,18 @@
+{
+  "name": "@dimensiondev/mask-wallet",
+  "version": "1.0.0",
+  "repository": "https://github.com/DimensionDev/MaskWallet.js",
+  "license": "MIT",
+  "author": "septs <septs@mask.io>",
+  "scripts": {
+    "test": "ts-node test.ts"
+  },
+  "dependencies": {
+    "@dimensiondev/mask-wallet-core": "^0.1.0-20210427150737-6f52009",
+    "protobufjs": "^6.10.2"
+  },
+  "devDependencies": {
+    "ts-node": "^9.1.1",
+    "typescript": "^4.2.4"
+  }
+}
