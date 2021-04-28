@@ -1,19 +1,21 @@
 import { request } from '@dimensiondev/mask-wallet-core';
 import { api, Param } from '@dimensiondev/mask-wallet-core/proto';
 
-function send(properties?: api.IMWRequest) {
-  return api.MWResponse.decode(
-    request(api.MWRequest.encode(new api.MWRequest(properties)).finish())
-  );
+function send<T extends keyof api.IMWRequest>(name: T, value: api.IMWRequest[T]) {
+  const message = new api.MWRequest({ [name]: value });
+  const payload = api.MWRequest.encode(message).finish();
+  const response = api.MWResponse.decode(request(payload));
+  // if (response.error) {
+  //   throw new Error(response.error.errorMsg);
+  // }
+  return response;
 }
 
-console.log(
-  send({
-    paramImportMnemonic: new Param.ImportMnemonicStoredKeyParam({
-      name: '',
-      coin: Param.Coin.Ethereum,
-      mnemonic: '',
-      password: '',
-    }),
-  })
-);
+const importMnemonic = new Param.ImportMnemonicStoredKeyParam({
+  name: 'example',
+  coin: Param.Coin.Ethereum,
+  mnemonic: 'suffer artefact burst review network fantasy easy century mom unique pupil boy',
+  password: 'example',
+});
+
+console.log(send('param_import_mnemonic', importMnemonic));
