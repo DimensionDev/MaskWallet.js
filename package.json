@@ -8,7 +8,7 @@
     "test": "ts-node test.ts"
   },
   "dependencies": {
-    "@dimensiondev/mask-wallet-core": "^0.1.0-20210428062648-4530e0e",
+    "@dimensiondev/mask-wallet-core": "^0.1.0-20210429004628-eff9c26",
     "protobufjs": "^6.10.2"
   },
   "devDependencies": {
