@@ -6,8 +6,7 @@ type Response = InstanceType<typeof api.MWResponse>;
 
 function send<I extends keyof Request, O extends keyof Response>(input: I, output: O) {
   return (value: Request[I]) => {
-    const message = new api.MWRequest({ [input]: value });
-    const payload = api.MWRequest.encode(message).finish();
+    const payload = api.MWRequest.encode({ [input]: value }).finish();
     const response = api.MWResponse.decode(request(payload));
     if (response.error) {
       throw new Error(response.error.errorMsg);
