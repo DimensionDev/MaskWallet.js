@@ -1,4 +1,4 @@
-import { Coin, StoredKeyType } from './api';
+import { Coin } from './api';
 import * as api from './api';
 
 const password = 'example';
@@ -34,6 +34,3 @@ for (let i = 0; i < num_of_addresses; i++) {
 
 let durationOfDerive = new Date().getTime() - startDerive;
 console.log(`Duration of Derive: ${durationOfDerive / num_of_addresses / 1000}s`);
-
-const allAccounts = api.getStoredKeyAllAccounts({ storedKeyData: storedKeyImportFromMnemonic1.StoredKey.data });
-console.log(`Created ${allAccounts.accounts.length} accounts`);
